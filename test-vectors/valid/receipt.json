@@ -1,0 +1,97 @@
+{
+  "spec": "fiscal402.receipt",
+  "spec_version": "1.0.0",
+  "receipt_id": "rcpt_fixture_0001",
+  "mode": "sandbox",
+  "issued_at": "2026-09-11T00:00:00.000Z",
+  "protocol_version": "0.3.0",
+  "tax_ruleset_version": "eu-vat-oss-2026.09",
+  "settlement": {
+    "network": "eip155:8453",
+    "tx_hash": "0xabababababababababababababababababababababababababababababababab",
+    "amount_usdc": "1.00",
+    "asset": "USDC",
+    "payer": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "pay_to": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "settled_at": "2026-09-10T12:00:00.000Z"
+  },
+  "context": {
+    "payment": {
+      "network": "eip155:8453",
+      "tx_hash": "0xabababababababababababababababababababababababababababababababab",
+      "asset": "USDC",
+      "amount": "1.00",
+      "payer": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "pay_to": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "commercial": {
+      "customer_country": {
+        "value": "DE",
+        "source": "merchant_attested",
+        "evidence_ref": "event.consumerCountry",
+        "confidence": "attested"
+      },
+      "customer_vat_id": {
+        "provided": false,
+        "source": "not_provided",
+        "evidence_ref": "none"
+      },
+      "service": {
+        "value": "x402 paid resource",
+        "source": "system_default"
+      }
+    },
+    "fiscal": {
+      "seller_country": {
+        "value": "NL",
+        "source": "operator_configured",
+        "evidence_ref": "config.seller.country"
+      },
+      "wallet_is_legal_identity": false,
+      "note": "A blockchain wallet is payment identity only. It does not prove a legal person."
+    }
+  },
+  "determination": {
+    "regime": "OSS_B2C",
+    "tax_category": "S",
+    "rate_percent": 19,
+    "taxing_country": "DE",
+    "legal_reference": "EU One-Stop-Shop (OSS) — B2C digitale dienst: btw van de lidstaat van de afnemer (bestemmingsland)",
+    "provenance": {
+      "tax_ruleset_version": "eu-vat-oss-2026.09",
+      "regime_reason": "fixture",
+      "taxing_country_reason": "destination_member_state:DE",
+      "rate_reason": "19% category S under OSS_B2C",
+      "vat_id_evidence": "not_provided",
+      "location_confidence": "attested",
+      "location_source": "merchant_attested"
+    }
+  },
+  "fx": {
+    "eur_per_usdc": 0.86,
+    "as_of": "2026-09-10",
+    "source": "fixture",
+    "net_eur": "0.86",
+    "vat_eur": "0.16"
+  },
+  "vies": {
+    "status": "NOT_PROVIDED",
+    "vat_id_hash": null
+  },
+  "artifacts": {
+    "settlement_id": "x402-fixture0001",
+    "ledger_id": "x402-fixture0001",
+    "ubl_sha256": "e082e7013fd0902fb5930c2d66e03b3036864928b2fcf7f29f22c679f62ea8a2",
+    "ubl_hash_alg": "sha256-utf8-bytes"
+  },
+  "disclaimer": "Technical classification artifact. Not tax advice, not a VAT return, and not a guarantee of tax-authority acceptance.",
+  "hashes": {
+    "canonical_payload_sha256": "2b6d0391fce296794c0745e55fbaa178440e59ca7c43dcb1e70f6d65bcd08513",
+    "canonicalization": "fiscal402.sorted-json/1"
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "receipt-ed25519-v1",
+    "value": "0xpo6YFrPO9tOcksDRopj1TSLGZZG5i7kF2etnQMFi9UFXL5yxdDcOmaazAAKEUkVgPM2Fir85jYMfIZR7CCCA=="
+  }
+}

@@ -1,0 +1,13 @@
+# Changelog
+
+## 1.0.0 — 2026-09-11
+
+Initial public protocol surface.
+
+- `fiscal402.receipt/1.0.0` specification
+- `fiscal402.sorted-json/1` canonicalization
+- Ed25519 + JWKS verification semantics
+- UBL UTF-8 SHA-256 artifact binding (no XML C14N)
+- `@fiscal402/verify` independent verifier and `fiscal402-verify` CLI
+- JSON Schema and sanitized test vectors
+- Canonical golden digest `b3217e8291e45ff4fabeb00f59ab8ec26bc3861555d48a7cb91a92db1251df4a`

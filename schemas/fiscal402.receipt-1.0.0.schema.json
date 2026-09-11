@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Fiscal402/Fiscal402/raw/main/schemas/fiscal402.receipt-1.0.0.schema.json",
+  "title": "fiscal402.receipt/1.0.0",
+  "description": "Frozen production receipt v1. Fields such as amount_usdc and vies are historical compatibility, not a claim that every future rail or jurisdiction uses them.",
+  "type": "object",
+  "required": [
+    "spec",
+    "spec_version",
+    "settlement",
+    "artifacts",
+    "hashes",
+    "signature"
+  ],
+  "properties": {
+    "spec": { "const": "fiscal402.receipt" },
+    "spec_version": { "const": "1.0.0" },
+    "receipt_id": { "type": "string" },
+    "mode": { "enum": ["sandbox", "production"] },
+    "issued_at": { "type": "string" },
+    "protocol_version": { "type": "string" },
+    "tax_ruleset_version": { "type": "string" },
+    "settlement": {
+      "type": "object",
+      "required": ["network", "tx_hash"],
+      "properties": {
+        "network": { "type": "string" },
+        "tx_hash": { "type": "string" },
+        "amount_usdc": { "type": "string" },
+        "asset": { "type": "string" },
+        "payer": { "type": "string" },
+        "pay_to": { "type": "string" },
+        "settled_at": { "type": "string" }
+      }
+    },
+    "context": { "type": "object" },
+    "determination": {
+      "type": "object",
+      "properties": {
+        "regime": { "type": "string" },
+        "tax_category": { "type": "string" },
+        "rate_percent": { "type": "number" },
+        "taxing_country": { "type": "string" },
+        "legal_reference": { "type": "string" },
+        "provenance": { "type": "object" }
+      }
+    },
+    "fx": {
+      "type": "object",
+      "properties": {
+        "eur_per_usdc": { "type": "number" },
+        "as_of": { "type": "string" },
+        "source": { "type": "string" },
+        "net_eur": { "type": "string" },
+        "vat_eur": { "type": "string" }
+      }
+    },
+    "vies": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" },
+        "vat_id_hash": { "type": ["string", "null"] }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "properties": {
+        "settlement_id": { "type": "string" },
+        "ledger_id": { "type": "string" },
+        "ubl_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "ubl_hash_alg": { "const": "sha256-utf8-bytes" }
+      }
+    },
+    "disclaimer": { "type": "string" },
+    "hashes": {
+      "type": "object",
+      "required": ["canonical_payload_sha256"],
+      "properties": {
+        "canonical_payload_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "canonicalization": { "type": "string" }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "key_id", "value"],
+      "properties": {
+        "alg": { "const": "ed25519" },
+        "key_id": { "type": "string" },
+        "value": { "type": "string" }
+      }
+    }
+  }
+}

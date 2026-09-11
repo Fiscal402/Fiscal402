@@ -1,0 +1,9 @@
+{
+  "canonicalization": "fiscal402.sorted-json/1",
+  "comment": "Key order must not affect the digest. Not RFC 8785.",
+  "inputs": [
+    { "spec": "fiscal402.receipt", "spec_version": "1.0.0", "a": 1 },
+    { "a": 1, "spec_version": "1.0.0", "spec": "fiscal402.receipt" }
+  ],
+  "canonical_payload_sha256": "b3217e8291e45ff4fabeb00f59ab8ec26bc3861555d48a7cb91a92db1251df4a"
+}

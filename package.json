@@ -1,0 +1,22 @@
+{
+  "name": "fiscal402",
+  "private": true,
+  "type": "module",
+
+  "description": "Open protocol specification and verification tooling for verifiable fiscal events in autonomous commerce.",
+  "workspaces": ["packages/verify"],
+  "scripts": {
+    "test": "npm test --workspace=@fiscal402/verify",
+    "typecheck": "npm run typecheck --workspace=@fiscal402/verify",
+    "build": "npm run build --workspace=@fiscal402/verify",
+    "example:consumer": "npm run build && node --experimental-strip-types examples/consumer/index.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fiscal402/Fiscal402.git"
+  }
+}
