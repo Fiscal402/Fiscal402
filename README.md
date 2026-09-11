@@ -72,20 +72,22 @@ The ecosystem-facing primitive is **`fiscal402.receipt`**.
 
 ## Verify a receipt
 
-```bash
-npx fiscal402-verify receipt.json --jwks jwks.json --ubl invoice.xml
-```
-
-From this repository after `npm run build --workspace=@fiscal402/verify`:
+The verifier lives in this repository. **It is not published to npm yet.**
 
 ```bash
+git clone https://github.com/Fiscal402/Fiscal402.git
+cd Fiscal402
+npm install
+npm run build
 node packages/verify/dist/cli.js \
   test-vectors/valid/receipt.json \
   --jwks test-vectors/valid/jwks.json \
   --ubl test-vectors/valid/invoice.xml
 ```
 
-TypeScript:
+Exit `0` only when the outcome is `VERIFIED`. That is cryptographic integrity, not tax-authority acceptance.
+
+TypeScript against the **workspace package** (after `npm install` / `npm run build` in this repo):
 
 ```ts
 import { parseReceipt, verifyReceipt } from "@fiscal402/verify";
@@ -95,9 +97,30 @@ const report = verifyReceipt({
   jwks,
   ubl,
 });
-// report.verified === cryptographic integrity
-// it is not tax-authority acceptance
 ```
+
+That import does **not** work from npm today. External consumers clone this repo.
+
+Planned npm usage (not available yet):
+
+```bash
+# After @fiscal402/verify is published
+npx fiscal402-verify receipt.json --jwks jwks.json --ubl invoice.xml
+```
+
+## Publication status
+
+**Current**
+
+- source on GitHub
+- verifier builds locally
+- CLI runs locally
+- package **not** published to npm
+
+**Planned**
+
+- publish `@fiscal402/verify`
+- enable `npx fiscal402-verify`
 
 ## Repository layout
 

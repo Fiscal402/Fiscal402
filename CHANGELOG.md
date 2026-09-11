@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Docs: verifier is source-only; `@fiscal402/verify` is not published to npm yet.
+
 ## 1.0.0 — 2026-09-11
 
 Initial public protocol surface.
