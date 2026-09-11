@@ -2,11 +2,19 @@
 
 Open protocol specification and verification tooling for verifiable fiscal events in autonomous commerce.
 
-Fiscal402 defines a portable, cryptographically verifiable fiscal-event receipt format for machine commerce.
+Fiscal402 is post-settlement fiscal infrastructure for autonomous commerce. It turns machine payments into a portable, cryptographically verifiable fiscal-event receipt. x402 v2 exact is the first supported payment protocol; EU VAT is the first production jurisdiction. Fiscal402 does not settle payments and does not custody customer funds.
 
 > x402 moves the money. Fiscal402 makes the transaction fiscally usable.
 
-> The public Fiscal402 protocol defines how fiscal evidence is represented and verified. Fiscal determination infrastructure may remain proprietary.
+> The public Fiscal402 protocol defines how fiscal evidence is represented and verified. Fiscal determination infrastructure remains proprietary.
+
+## Public surfaces
+
+- Website: [https://www.fiscal402.com](https://www.fiscal402.com)
+- Protocol: [https://www.fiscal402.com/protocol](https://www.fiscal402.com/protocol)
+- Verification: [https://www.fiscal402.com/verify](https://www.fiscal402.com/verify)
+- API discovery: [https://api.fiscal402.com/.well-known/fiscal402.json](https://api.fiscal402.com/.well-known/fiscal402.json)
+- This repository: specification, JSON Schema, test vectors, source-only verifier
 
 ## Current production implementation
 
@@ -134,7 +142,7 @@ npx fiscal402-verify receipt.json --jwks jwks.json --ubl invoice.xml
 
 ## Pricing (commercial, not this repo)
 
-Standard Fiscal402 pricing: **50 bps**. Custom high-volume pricing is available commercially. This repository does not contain billing or fee-collection code.
+Fiscal402 is free during beta at **0 bps**. That is not permanently free. Standard rate after beta: **50 bps / 0.5%** of fiscalized volume. High-volume pricing is custom. This repository does not contain billing or fee-collection code.
 
 ## What “open” means here
 
