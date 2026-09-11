@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Public contract checker: `npm run check:public` (local docs) and `npm run check:public:live` (production surfaces). Daily GitHub Actions live check.
 - `fiscal402.receipt/2.0.0` experimental specification, JSON Schema, verifier, and UK technical test vectors.
 - v2 reuses `fiscal402.sorted-json/1`. v1 golden digest is unchanged.
 - `@fiscal402/verify` dispatches on `spec_version` (`parseReceipt` / `verifyReceipt`). `verifyFiscal402Receipt` remains v1-only.

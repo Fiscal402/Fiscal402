@@ -5,11 +5,13 @@
   "description": "Open protocol specification and verification tooling for verifiable fiscal events in autonomous commerce.",
   "workspaces": ["packages/verify"],
   "scripts": {
-    "test": "npm test --workspace=@fiscal402/verify",
+    "test": "npm test --workspace=@fiscal402/verify && node --experimental-strip-types --test scripts/check-public-contract.test.ts",
     "typecheck": "npm run typecheck --workspace=@fiscal402/verify",
     "build": "npm run build --workspace=@fiscal402/verify",
     "conformance": "npm run build --workspace=@fiscal402/verify && node --experimental-strip-types --test packages/verify/test/conformance.test.ts packages/verify/test/verify.test.ts packages/verify/test/verify-v2.test.ts",
-    "example:consumer": "npm run build && node --experimental-strip-types examples/consumer/index.ts"
+    "example:consumer": "npm run build && node --experimental-strip-types examples/consumer/index.ts",
+    "check:public": "node --experimental-strip-types scripts/check-public-contract.ts",
+    "check:public:live": "node --experimental-strip-types scripts/check-public-contract.ts --live"
   },
   "engines": {
     "node": ">=20"
