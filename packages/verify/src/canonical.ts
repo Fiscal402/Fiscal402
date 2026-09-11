@@ -22,18 +22,26 @@ export const UBL_HASH_ALG = "sha256-utf8-bytes";
 export const RECEIPT_CANONICALIZATION = "fiscal402.sorted-json/1";
 export const RECEIPT_SPEC = "fiscal402.receipt";
 export const RECEIPT_SPEC_VERSION = "1.0.0";
+export const RECEIPT_SPEC_VERSION_V2 = "2.0.0";
 export const RECEIPT_SIGNING_ALG = "ed25519";
+export const ARTIFACT_HASH_ALG = "sha256";
 
 /** SHA-256 of the exact UTF-8 bytes of the bound artifact. No XML C14N. */
 export function hashUblBytes(xml: string): string {
   return createHash("sha256").update(xml, "utf8").digest("hex");
 }
 
+export function hashArtifactBytes(bytes: string | Uint8Array): string {
+  if (typeof bytes === "string") return hashUblBytes(bytes);
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
 export function hashCanonicalPayload(unsignedBody: unknown): string {
   return createHash("sha256").update(stableStringify(unsignedBody), "utf8").digest("hex");
 }
 
+/** Strip binding fields. v1 uses hashes+signature; v2 uses integrity+signature. */
 export function unsignedReceiptBody(receipt: Record<string, unknown>): Record<string, unknown> {
-  const { hashes: _h, signature: _s, ...rest } = receipt;
+  const { hashes: _h, integrity: _i, signature: _s, ...rest } = receipt;
   return rest;
 }

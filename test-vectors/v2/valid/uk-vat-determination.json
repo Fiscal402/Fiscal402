@@ -1,0 +1,23 @@
+{
+  "spec": "fiscal402.uk-vat-determination",
+  "spec_version": "1.0.0",
+  "statutory_invoice": false,
+  "disclaimer": "Technical fiscal determination artifact. Not a substitute for a statutory VAT invoice. Not tax advice.",
+  "jurisdiction": "GB",
+  "regime": "uk-vat",
+  "engine": "uk-vat",
+  "ruleset_version": "uk-vat-2026.09",
+  "status": "DETERMINED",
+  "category": "standard_rate",
+  "rate": {
+    "numerator": "20",
+    "denominator": "100"
+  },
+  "customer_type": "B2C",
+  "vat_format_valid": false,
+  "valuation": {
+    "status": "unavailable",
+    "reason": "gbp_valuation_not_supported",
+    "note": "Fiscal402 currently values USDC in EUR only. GBP taxable amount is not computed."
+  }
+}

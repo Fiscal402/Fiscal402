@@ -1,0 +1,20 @@
+{
+  "canonicalization": "fiscal402.sorted-json/1",
+  "spec": "fiscal402.receipt",
+  "spec_version": "2.0.0",
+  "canonical_payload_sha256": "ebcaf0dcddb4908ca6683847f8b2be9e0ce9c07399d4fc067e244505f3b1a3d4",
+  "canonical_utf8": "{\"a\":1,\"spec\":\"fiscal402.receipt\",\"spec_version\":\"2.0.0\"}",
+  "note": "Independent of the v1 golden digest. Key order must not matter.",
+  "inputs": [
+    {
+      "spec": "fiscal402.receipt",
+      "spec_version": "2.0.0",
+      "a": 1
+    },
+    {
+      "a": 1,
+      "spec_version": "2.0.0",
+      "spec": "fiscal402.receipt"
+    }
+  ]
+}

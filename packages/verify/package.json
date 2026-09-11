@@ -1,8 +1,8 @@
 {
   "name": "@fiscal402/verify",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "Independent verifier for fiscal402.receipt/1.0.0",
+  "description": "Independent verifier for fiscal402.receipt/1.0.0 and fiscal402.receipt/2.0.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,7 +19,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --experimental-strip-types --test test/verify.test.ts"
+    "test": "npm run build && node --experimental-strip-types --test test/verify.test.ts test/verify-v2.test.ts test/conformance.test.ts"
   },
   "engines": {
     "node": ">=20"

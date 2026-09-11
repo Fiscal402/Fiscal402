@@ -1,0 +1,111 @@
+{
+  "spec": "fiscal402.receipt",
+  "spec_version": "2.0.0",
+  "receipt_id": "rcpt_v2_uk_fixture_0001",
+  "issued_at": "2026-09-11T12:00:00.000Z",
+  "mode": "experimental",
+  "issuer": {
+    "id": "fiscal402",
+    "key_id": "receipt-ed25519-v1"
+  },
+  "event": {
+    "id": "fiscal-uk-fixture-0001",
+    "occurred_at": "2026-09-10T12:00:00.000Z",
+    "payment": {
+      "protocol": {
+        "name": "evm-transfer",
+        "version": "1",
+        "scheme": "erc20-transfer"
+      },
+      "settlement": {
+        "transaction_id": "0xabababababababababababababababababababababababababababababababab",
+        "network": {
+          "id": "eip155:1",
+          "namespace": "eip155"
+        },
+        "rail": "evm-transfer",
+        "asset": {
+          "identifier": "USDC",
+          "amount_base_units": "2500000",
+          "decimals": 6
+        },
+        "payer": {
+          "kind": "wallet",
+          "identifier": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "payee": {
+          "kind": "wallet",
+          "identifier": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "settled_at": "2026-09-10T12:00:00.000Z"
+      }
+    },
+    "parties": {
+      "seller": {
+        "role": "seller",
+        "country": "GB",
+        "name": "UK Fixture Ltd"
+      },
+      "buyer": {
+        "role": "buyer",
+        "country": "GB"
+      }
+    },
+    "supply": {
+      "kind": "digital_service",
+      "description": "Synthetic electronic service"
+    }
+  },
+  "determinations": [
+    {
+      "jurisdiction": "GB",
+      "regime": "uk-vat",
+      "engine": "uk-vat",
+      "ruleset_version": "uk-vat-2026.09",
+      "status": "DETERMINED",
+      "category": "standard_rate",
+      "rate": {
+        "numerator": "20",
+        "denominator": "100"
+      },
+      "legal_reference": "Value Added Tax Act 1994; HMRC VAT Notice 700 — standard rate 20% from 4 January 2011",
+      "provenance": [
+        {
+          "authority": "HMRC / Value Added Tax Act 1994",
+          "source_url": "https://www.gov.uk/guidance/rates-of-vat-on-different-goods-and-services",
+          "retrieved_at": "2026-09-11",
+          "effective_from": "2011-01-04"
+        }
+      ],
+      "extensions": {
+        "uk-vat": {
+          "customer_type": "B2C",
+          "vat_format_valid": false,
+          "statutory_invoice": false
+        }
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "uk-vat-determination-1",
+      "type": "fiscal402.uk-vat-determination+json",
+      "media_type": "application/json",
+      "hash": {
+        "alg": "sha256",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "statutory_invoice": false
+    }
+  ],
+  "disclaimer": "Technical classification artifact. Not tax advice, not a VAT return, and not a guarantee of tax-authority acceptance. Not a statutory UK VAT invoice.",
+  "integrity": {
+    "canonicalization": "fiscal402.sorted-json/1",
+    "payload_sha256": "31b5bd323127e72ff0cb9885a5818ede6cc97543bb0adb6cf5f1064c1ccd4d9b"
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "receipt-ed25519-v1",
+    "value": "079YPJr8Nb1NpRUG8I46Su/bfbZFMBVo32bAVGz3cKgkrdzo9Pqb+65fNlmJBdHePMRk5HqfmSWRlQoxL1vXDw=="
+  }
+}

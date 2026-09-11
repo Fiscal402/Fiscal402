@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `fiscal402.receipt/2.0.0` experimental specification, JSON Schema, verifier, and UK technical test vectors.
+- v2 reuses `fiscal402.sorted-json/1`. v1 golden digest is unchanged.
+- `@fiscal402/verify` dispatches on `spec_version` (`parseReceipt` / `verifyReceipt`). `verifyFiscal402Receipt` remains v1-only.
 - Docs: verifier is source-only; `@fiscal402/verify` is not published to npm yet.
 
 ## 1.0.0 — 2026-09-11

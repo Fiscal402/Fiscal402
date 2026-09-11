@@ -5,15 +5,21 @@ import {
   RECEIPT_CANONICALIZATION,
   RECEIPT_SPEC,
   RECEIPT_SPEC_VERSION,
+  RECEIPT_SPEC_VERSION_V2,
   unsignedReceiptBody,
 } from "./canonical.js";
+import { parseReceipt as parseReceiptObject, ReceiptParseError } from "./parse.js";
+import { verifyFiscal402ReceiptV2, type V2ArtifactBytes } from "./verify-v2.js";
 
 export type Fiscal402Receipt = {
   spec?: string;
   spec_version?: string;
   hashes?: { canonical_payload_sha256?: string; canonicalization?: string };
+  integrity?: { payload_sha256?: string; canonicalization?: string };
   signature?: { alg?: string; key_id?: string; value?: string };
-  artifacts?: { ubl_sha256?: string; settlement_id?: string; ledger_id?: string; ubl_hash_alg?: string };
+  artifacts?:
+    | { ubl_sha256?: string; settlement_id?: string; ledger_id?: string; ubl_hash_alg?: string }
+    | unknown[];
   settlement?: {
     network?: string;
     tx_hash?: string;
@@ -31,12 +37,14 @@ export type Jwks = { keys?: { kid?: string; pem?: string; kty?: string; crv?: st
 export type VerifyReport = {
   verified: boolean;
   legacy: boolean;
+  spec_version?: string;
   canonicalization: typeof RECEIPT_CANONICALIZATION | "legacy-stored-hash" | "none";
   receipt_schema: "SUPPORTED" | "UNSUPPORTED" | "MISSING";
   canonical_payload: "MATCH" | "MISMATCH" | "LEGACY_STORED_HASH";
   signature: "VALID" | "INVALID" | "MALFORMED";
   signing_key: "JWKS_MATCH" | "PROVIDED_PEM" | "UNKNOWN_KEY_ID" | "MISSING";
   ubl_sha256: "MATCH" | "MISMATCH" | "NOT_PROVIDED";
+  artifacts?: "MATCH" | "MISMATCH" | "NOT_PROVIDED" | "PARTIAL";
   settlement_reference: "PRESENT" | "MISSING";
   wallet_not_legal_identity: boolean;
   result: "VERIFIED" | "INVALID" | "INCOMPLETE";
@@ -51,22 +59,23 @@ export type VerifyOutcome =
   | "UNSUPPORTED_VERSION";
 
 export function parseReceipt(input: unknown): Fiscal402Receipt {
-  if (typeof input === "string") {
-    return JSON.parse(input) as Fiscal402Receipt;
-  }
-  if (input && typeof input === "object") {
-    return input as Fiscal402Receipt;
-  }
-  throw new TypeError("receipt must be a JSON object or JSON string");
+  return parseReceiptObject(input) as Fiscal402Receipt;
 }
 
 export function verifyArtifactHash(artifactUtf8: string, expectedSha256Hex: string): boolean {
   return hashUblBytes(artifactUtf8) === expectedSha256Hex;
 }
 
+/** v1 verifier. Callers that pass a v2 document get UNSUPPORTED schema, not a v2 interpretation. */
 export function verifyFiscal402Receipt(
   receipt: Fiscal402Receipt,
-  options: { ubl?: string; ublXml?: string; jwks?: Jwks; publicPem?: string } = {},
+  options: {
+    ubl?: string;
+    ublXml?: string;
+    jwks?: Jwks;
+    publicPem?: string;
+    artifacts?: V2ArtifactBytes[];
+  } = {},
 ): VerifyReport {
   const notes: string[] = [];
   const schemaOk = receipt.spec === RECEIPT_SPEC && receipt.spec_version === RECEIPT_SPEC_VERSION;
@@ -92,8 +101,9 @@ export function verifyFiscal402Receipt(
 
   const ublBytes = options.ubl ?? options.ublXml;
   let ubl_sha256: VerifyReport["ubl_sha256"] = "NOT_PROVIDED";
-  if (ublBytes && receipt.artifacts?.ubl_sha256) {
-    ubl_sha256 = hashUblBytes(ublBytes) === receipt.artifacts.ubl_sha256 ? "MATCH" : "MISMATCH";
+  const v1Artifacts = receipt.artifacts && !Array.isArray(receipt.artifacts) ? receipt.artifacts : undefined;
+  if (ublBytes && v1Artifacts?.ubl_sha256) {
+    ubl_sha256 = hashUblBytes(ublBytes) === v1Artifacts.ubl_sha256 ? "MATCH" : "MISMATCH";
   }
 
   const sig = receipt.signature;
@@ -144,6 +154,7 @@ export function verifyFiscal402Receipt(
   return {
     verified: result === "VERIFIED",
     legacy,
+    spec_version: typeof receipt.spec_version === "string" ? receipt.spec_version : undefined,
     canonicalization,
     receipt_schema,
     canonical_payload,
@@ -157,13 +168,47 @@ export function verifyFiscal402Receipt(
   };
 }
 
+/**
+ * Version-dispatching verifier. Existing v1 callers of verifyFiscal402Receipt are unchanged.
+ */
 export function verifyReceipt(input: {
-  receipt: Fiscal402Receipt;
+  receipt: Fiscal402Receipt | string;
   ubl?: string;
   jwks?: Jwks;
   publicPem?: string;
+  artifacts?: V2ArtifactBytes[];
 }): VerifyReport {
-  return verifyFiscal402Receipt(input.receipt, {
+  let receipt: Fiscal402Receipt;
+  try {
+    receipt =
+      typeof input.receipt === "string" ? parseReceipt(input.receipt) : (input.receipt as Fiscal402Receipt);
+  } catch (err) {
+    const code = err instanceof ReceiptParseError ? err.code : "NOT_JSON";
+    return {
+      verified: false,
+      legacy: false,
+      canonicalization: "none",
+      receipt_schema: "UNSUPPORTED",
+      canonical_payload: "MISMATCH",
+      signature: "MALFORMED",
+      signing_key: "MISSING",
+      ubl_sha256: "NOT_PROVIDED",
+      settlement_reference: "MISSING",
+      wallet_not_legal_identity: false,
+      result: "INVALID",
+      notes: [`parse failed: ${code}`],
+    };
+  }
+
+  if (receipt.spec === RECEIPT_SPEC && receipt.spec_version === RECEIPT_SPEC_VERSION_V2) {
+    return verifyFiscal402ReceiptV2(receipt as Record<string, unknown>, {
+      ...(input.jwks ? { jwks: input.jwks } : {}),
+      ...(input.publicPem ? { publicPem: input.publicPem } : {}),
+      ...(input.artifacts ? { artifacts: input.artifacts } : {}),
+    });
+  }
+
+  return verifyFiscal402Receipt(receipt, {
     ...(input.ubl ? { ubl: input.ubl } : {}),
     ...(input.jwks ? { jwks: input.jwks } : {}),
     ...(input.publicPem ? { publicPem: input.publicPem } : {}),
@@ -176,7 +221,7 @@ export function outcomeOf(report: VerifyReport): VerifyOutcome {
     return "UNSUPPORTED_VERSION";
   }
   if (report.signing_key === "UNKNOWN_KEY_ID") return "UNKNOWN_KEY";
-  if (report.ubl_sha256 === "MISMATCH") return "ARTIFACT_MISMATCH";
+  if (report.ubl_sha256 === "MISMATCH" || report.artifacts === "MISMATCH") return "ARTIFACT_MISMATCH";
   if (report.result === "VERIFIED") return "VERIFIED";
   return "INVALID";
 }

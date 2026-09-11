@@ -96,7 +96,7 @@ See [canonicalization.md](./canonicalization.md) and [signatures.md](./signature
 
 ## Compatibility debt (intentional)
 
-These v1 fields stay until receipt v2 is justified by a second rail or jurisdiction:
+These v1 fields stay. The generic format is [`fiscal402.receipt/2.0.0`](./receipt-2.0.md). v1 is not deprecated.
 
 - `amount_usdc`
 - `vies`

@@ -2,13 +2,13 @@
   "name": "fiscal402",
   "private": true,
   "type": "module",
-
   "description": "Open protocol specification and verification tooling for verifiable fiscal events in autonomous commerce.",
   "workspaces": ["packages/verify"],
   "scripts": {
     "test": "npm test --workspace=@fiscal402/verify",
     "typecheck": "npm run typecheck --workspace=@fiscal402/verify",
     "build": "npm run build --workspace=@fiscal402/verify",
+    "conformance": "npm run build --workspace=@fiscal402/verify && node --experimental-strip-types --test packages/verify/test/conformance.test.ts packages/verify/test/verify.test.ts packages/verify/test/verify-v2.test.ts",
     "example:consumer": "npm run build && node --experimental-strip-types examples/consumer/index.ts"
   },
   "engines": {

@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Fiscal402/Fiscal402/raw/main/schemas/fiscal402.receipt-2.0.0.schema.json",
+  "title": "fiscal402.receipt/2.0.0",
+  "description": "Generic, payment-rail-neutral, jurisdiction-neutral verifiable fiscal event. Additive to frozen v1. additionalProperties is false on signed core objects; namespaced extensions live under extensions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spec",
+    "spec_version",
+    "receipt_id",
+    "issued_at",
+    "event",
+    "determinations",
+    "artifacts",
+    "integrity",
+    "signature"
+  ],
+  "properties": {
+    "spec": { "const": "fiscal402.receipt" },
+    "spec_version": { "const": "2.0.0" },
+    "receipt_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "issued_at": { "$ref": "#/$defs/timestamp" },
+    "mode": { "enum": ["sandbox", "production", "experimental"] },
+    "issuer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "key_id": { "type": "string", "minLength": 1, "maxLength": 128 }
+      }
+    },
+    "event": { "$ref": "#/$defs/event" },
+    "determinations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/determination" }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "disclaimer": { "type": "string" },
+    "extensions": { "$ref": "#/$defs/extensions" },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonicalization", "payload_sha256"],
+      "properties": {
+        "canonicalization": { "const": "fiscal402.sorted-json/1" },
+        "payload_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alg", "key_id", "value"],
+      "properties": {
+        "alg": { "const": "ed25519" },
+        "key_id": { "type": "string", "minLength": 1 },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+    },
+    "integerString": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$",
+      "maxLength": 78
+    },
+    "money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "amount_minor", "minor_unit"],
+      "properties": {
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "amount_minor": { "$ref": "#/$defs/integerString" },
+        "minor_unit": { "type": "integer", "minimum": 0, "maximum": 18 }
+      }
+    },
+    "rate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator"],
+      "properties": {
+        "numerator": { "$ref": "#/$defs/integerString" },
+        "denominator": { "type": "string", "pattern": "^[1-9][0-9]*$", "maxLength": 78 }
+      }
+    },
+    "partyRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "identifier"],
+      "properties": {
+        "kind": { "enum": ["wallet", "account", "opaque"] },
+        "identifier": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    },
+    "fiscalParty": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "enum": ["seller", "buyer", "marketplace", "deemed_supplier", "agent", "facilitator"]
+        },
+        "country": { "type": "string", "minLength": 2, "maxLength": 8 },
+        "name": { "type": "string", "maxLength": 256 },
+        "tax_id_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["occurred_at", "payment", "parties", "supply"],
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "occurred_at": { "$ref": "#/$defs/timestamp" },
+        "payment": { "$ref": "#/$defs/payment" },
+        "parties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["seller"],
+          "properties": {
+            "seller": { "$ref": "#/$defs/fiscalParty" },
+            "buyer": { "$ref": "#/$defs/fiscalParty" }
+          }
+        },
+        "supply": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": { "type": "string", "minLength": 1, "maxLength": 64 },
+            "description": { "type": "string", "maxLength": 512 }
+          }
+        }
+      }
+    },
+    "payment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "settlement"],
+      "properties": {
+        "protocol": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1, "maxLength": 64 },
+            "version": { "type": "string", "maxLength": 32 },
+            "scheme": { "type": "string", "maxLength": 64 }
+          }
+        },
+        "settlement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["transaction_id", "asset"],
+          "properties": {
+            "transaction_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+            "network": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+                "namespace": { "type": "string", "maxLength": 64 }
+              }
+            },
+            "rail": { "type": "string", "maxLength": 64 },
+            "asset": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["identifier", "amount_base_units"],
+              "properties": {
+                "identifier": { "type": "string", "minLength": 1, "maxLength": 128 },
+                "amount_base_units": { "$ref": "#/$defs/integerString" },
+                "decimals": { "type": "integer", "minimum": 0, "maximum": 18 }
+              }
+            },
+            "payer": { "$ref": "#/$defs/partyRef" },
+            "payee": { "$ref": "#/$defs/partyRef" },
+            "settled_at": { "$ref": "#/$defs/timestamp" }
+          }
+        }
+      }
+    },
+    "determination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["jurisdiction", "regime", "engine", "ruleset_version", "status"],
+      "properties": {
+        "jurisdiction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Stable jurisdiction identifier. Not required to be ISO 3166-1. Future US sales tax may use compound identifiers."
+        },
+        "regime": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "engine": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "ruleset_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "status": { "enum": ["DETERMINED", "MANUAL_REVIEW", "UNDETERMINED"] },
+        "category": { "type": "string", "maxLength": 64 },
+        "rate": { "$ref": "#/$defs/rate" },
+        "taxable_amount": { "$ref": "#/$defs/money" },
+        "tax_amount": { "$ref": "#/$defs/money" },
+        "legal_reference": { "type": "string", "maxLength": 512 },
+        "provenance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["authority", "retrieved_at", "effective_from"],
+            "properties": {
+              "authority": { "type": "string", "minLength": 1 },
+              "source_url": { "type": "string", "maxLength": 512 },
+              "retrieved_at": { "type": "string", "minLength": 1 },
+              "effective_from": { "type": "string", "minLength": 1 },
+              "effective_to": { "type": "string" }
+            }
+          }
+        },
+        "extensions": { "$ref": "#/$defs/extensions" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "media_type", "hash"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "type": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "hash": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["alg", "value"],
+          "properties": {
+            "alg": { "const": "sha256" },
+            "value": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        },
+        "statutory_invoice": { "type": "boolean" }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$" },
+      "additionalProperties": { "type": "object" }
+    }
+  }
+}

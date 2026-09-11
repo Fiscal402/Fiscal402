@@ -1,0 +1,11 @@
+{
+  "keys": [
+    {
+      "kid": "receipt-ed25519-v1",
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "use": "sig",
+      "pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAYSov0f4Q5+5zrxkjW2m//IXEsY1utMHNQFUMRpaE9yM=\n-----END PUBLIC KEY-----\n"
+    }
+  ]
+}

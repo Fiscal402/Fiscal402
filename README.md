@@ -27,6 +27,15 @@ x402 v2 exact
 
 x402 is the first supported payment protocol.
 
+## Receipt versions
+
+| Version | Status | Role |
+|---|---|---|
+| `fiscal402.receipt/1.0.0` | supported, frozen | EU / x402 compatibility format |
+| `fiscal402.receipt/2.0.0` | experimental | generic multi-rail / multi-jurisdiction format |
+
+v1 is not deprecated. There is no migration requirement for v1 consumers.
+
 ## Status
 
 **Current**
@@ -39,6 +48,14 @@ x402 is the first supported payment protocol.
 | receipt 1.0.0 | supported |
 | Ed25519 verification | supported |
 
+**Experimental**
+
+| Piece | Status |
+|---|---|
+| receipt 2.0.0 | specified + independently verifiable |
+| UK VAT determination | experimental; not a statutory invoice |
+| evm-transfer adapter | library-level; HTTP ingest is not public |
+
 **Not implemented**
 
 | Piece | Status |
@@ -46,21 +63,36 @@ x402 is the first supported payment protocol.
 | MPP | not implemented |
 | AP2 | not implemented |
 | US sales tax | not implemented |
-| UK VAT | not implemented |
 | Canada | not implemented |
-| receipt v2 | not implemented |
+| GBP FX | not implemented |
 | generic FX | not implemented |
 | Solana settlement verification | not implemented |
 
-## North star (direction, not a claim)
+## Architecture (execution, not v1 wire format)
 
 ```
-ANY PAYMENT RAIL.
-ANY JURISDICTION.
-ONE VERIFIABLE FISCAL EVENT.
+Payment Protocol
+      ↓
+PaymentAdapter
+      ↓
+PaymentEvidence
+      ↓
+FiscalEvent
+      ↓
+JurisdictionRouter
+      ↓
+FiscalDetermination
+      ↓
+FiscalArtifact[]
+      ↓
+Receipt Kernel
+      ↓
+Receipt Projection
+   ├── fiscal402.receipt/1.0.0
+   └── fiscal402.receipt/2.0.0
 ```
 
-Today that is architecture, not inventory.
+`FiscalDetermination` is **output** from processing a `FiscalEvent`.
 
 ## Public interoperability
 
@@ -73,14 +105,14 @@ fiscal402.receipt             ← this repository
       ↓
 agents / ERP / marketplaces / accounting
       ↓
-independent verification      ← @fiscal402/verify
+independent verification      ← @fiscal402/verify (source-only)
 ```
 
 The ecosystem-facing primitive is **`fiscal402.receipt`**.
 
-## Verify a receipt
+## Verify locally
 
-The verifier lives in this repository. **It is not published to npm yet.**
+The verifier is not published to npm yet.
 
 ```bash
 git clone https://github.com/Fiscal402/Fiscal402.git
@@ -93,63 +125,15 @@ node packages/verify/dist/cli.js \
   --ubl test-vectors/valid/invoice.xml
 ```
 
-Exit `0` only when the outcome is `VERIFIED`. That is cryptographic integrity, not tax-authority acceptance.
-
-TypeScript against the **workspace package** (after `npm install` / `npm run build` in this repo):
-
-```ts
-import { parseReceipt, verifyReceipt } from "@fiscal402/verify";
-
-const report = verifyReceipt({
-  receipt: parseReceipt(receiptJson),
-  jwks,
-  ubl,
-});
-```
-
-That import does **not** work from npm today. External consumers clone this repo.
-
-Planned npm usage (not available yet):
+v2 (experimental UK technical fixture):
 
 ```bash
-# After @fiscal402/verify is published
-npx fiscal402-verify receipt.json --jwks jwks.json --ubl invoice.xml
+node packages/verify/dist/cli.js \
+  test-vectors/v2/valid/receipt.json \
+  --jwks test-vectors/v2/valid/jwks.json \
+  --artifact-id uk-vat-determination-1=test-vectors/v2/valid/uk-vat-determination.json
 ```
-
-## Publication status
-
-**Current**
-
-- source on GitHub
-- verifier builds locally
-- CLI runs locally
-- package **not** published to npm
-
-**Planned**
-
-- publish `@fiscal402/verify`
-- enable `npx fiscal402-verify`
-
-## Repository layout
-
-| Path | Contents |
-|---|---|
-| `protocol/` | receipt, canonicalization, signatures, artifacts, verification |
-| `schemas/` | `fiscal402.receipt-1.0.0` JSON Schema |
-| `packages/verify/` | independent verifier (Node `crypto` only) |
-| `test-vectors/` | sanitized fixtures |
-| `examples/consumer/` | downstream-style verify + inspect |
-
-## Pricing (commercial, not this repo)
-
-Fiscal402 is free during beta at **0 bps**. That is not permanently free. Standard rate after beta: **50 bps / 0.5%** of fiscalized volume. High-volume pricing is custom. This repository does not contain billing or fee-collection code.
-
-## What “open” means here
-
-Open protocol surface + open verification. Fiscal execution (VAT classification, VIES, FX, ingest, persistence) stays proprietary.
-
-See [protocol/README.md](./protocol/README.md).
 
 ## License
 
-Apache License 2.0. See [LICENSE](./LICENSE).
+Apache-2.0
