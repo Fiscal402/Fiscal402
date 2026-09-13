@@ -1,7 +1,7 @@
 {
-  "name": "@fiscal402/verify",
-  "version": "1.1.0",
-  "description": "Independent verifier for fiscal402.receipt/1.0.0 and fiscal402.receipt/2.0.0",
+  "name": "@fiscal402/node",
+  "version": "0.1.0",
+  "description": "Server-side Fiscal402 Node.js client. Process settled machine payments into verifiable fiscal events.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,17 +11,17 @@
       "import": "./dist/index.js"
     }
   },
-  "bin": {
-    "fiscal402-verify": "./dist/cli.js"
-  },
-  "files": ["dist", "README.md"],
+  "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --experimental-strip-types --test test/verify.test.ts test/verify-v2.test.ts test/conformance.test.ts"
+    "test": "npm run build && node --experimental-strip-types --test test/*.test.ts"
   },
   "engines": {
     "node": ">=20.18"
+  },
+  "dependencies": {
+    "@fiscal402/sdk": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.0",
@@ -38,13 +38,16 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Fiscal402/Fiscal402.git",
-    "directory": "packages/verify"
+    "directory": "packages/node"
   },
   "keywords": [
     "fiscal402",
-    "receipt",
-    "verification",
-    "ed25519",
+    "x402",
+    "vat",
+    "eu-vat",
+    "agentic-commerce",
+    "machine-payments",
+    "fiscal-receipt",
     "ubl",
     "en16931"
   ]

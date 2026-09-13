@@ -1,0 +1,58 @@
+{
+  "name": "@fiscal402/cli",
+  "version": "0.1.0",
+  "description": "Fiscal402 CLI. Discover capabilities and verify fiscal402.receipt files.",
+  "type": "module",
+  "main": "./dist/cli.js",
+  "types": "./dist/cli.d.ts",
+  "bin": {
+    "fiscal402": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --experimental-strip-types --test test/*.test.ts"
+  },
+  "engines": {
+    "node": ">=20.18"
+  },
+  "dependencies": {
+    "@fiscal402/sdk": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.9.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://www.fiscal402.com",
+  "bugs": {
+    "url": "https://github.com/Fiscal402/Fiscal402/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fiscal402/Fiscal402.git",
+    "directory": "packages/cli"
+  },
+  "keywords": [
+    "fiscal402",
+    "x402",
+    "vat",
+    "eu-vat",
+    "agentic-commerce",
+    "machine-payments",
+    "fiscal-receipt",
+    "ubl",
+    "en16931",
+    "cli"
+  ]
+}

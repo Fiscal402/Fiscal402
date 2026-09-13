@@ -23,6 +23,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm run check:public
+      - run: npm run pack:inspect
 
   live:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -34,4 +35,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm install
+      - run: npm run build
       - run: npm run check:public:live
+      - run: npm run smoke:api

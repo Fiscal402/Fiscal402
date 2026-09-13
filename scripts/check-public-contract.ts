@@ -13,8 +13,8 @@ export const PUBLIC_TRUTH = {
   api: "https://api.fiscal402.com",
   github: "https://github.com/Fiscal402/Fiscal402",
   betaBps: 0,
-  standardBps: 50,
-  displayRate: "0.5%",
+  standardBps: 10,
+  displayRate: "0.1%",
   receipt: "fiscal402.receipt/1.0.0",
 } as const;
 
@@ -145,7 +145,7 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
   if (!github) results.push(fail("GitHub", PUBLIC_TRUTH.github, "missing", "discovery", discoveryUrl));
   else results.push(pass("GitHub"));
   const pricing = (discoveryJson.pricing as { production?: Record<string, unknown> } | undefined)?.production ?? {};
-  if ("amount_usdc" in pricing) results.push(fail("pricing", "0/50 bps policy", `amount_usdc=${String(pricing.amount_usdc)}`, "discovery", discoveryUrl));
+  if ("amount_usdc" in pricing) results.push(fail("pricing", "0/10 bps policy", `amount_usdc=${String(pricing.amount_usdc)}`, "discovery", discoveryUrl));
   const mcpField = discoveryJson.mcp;
   if (mcpField === true || (typeof mcpField === "string" && mcpField.startsWith("http"))) {
     results.push(fail("MCP status", "not implemented", String(mcpField), "discovery", discoveryUrl));
@@ -186,8 +186,8 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
         mcp?: unknown;
         github?: string;
       };
-      if (json.pricing_beta?.fee_bps !== 0 || json.pricing_standard?.fee_bps !== 50) {
-        results.push(fail("pricing", "beta 0 / standard 50", JSON.stringify({ beta: json.pricing_beta, standard: json.pricing_standard }), "facts", factsUrl));
+      if (json.pricing_beta?.fee_bps !== 0 || json.pricing_standard?.fee_bps !== 10) {
+        results.push(fail("pricing", "beta 0 / standard 10", JSON.stringify({ beta: json.pricing_beta, standard: json.pricing_standard }), "facts", factsUrl));
       } else results.push(pass("pricing"));
       if (json.mcp === true) results.push(fail("MCP status", "not implemented", "true", "facts", factsUrl));
       else results.push(pass("MCP status"));
@@ -201,7 +201,7 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
     const llms = await fetchText(llmsUrl);
     if (llms.status !== 200) results.push(fail("HTTP", "200", String(llms.status), "llms", llmsUrl));
     else {
-      const need = [/Fiscal402/, /x402/, /EU fiscal/i, /fiscal402\.receipt\/1\.0\.0/, /0 bps/i, /50 bps/, /MPP.{0,24}not implemented/i, /AP2.{0,24}not implemented/i];
+      const need = [/Fiscal402/, /x402/, /EU fiscal/i, /fiscal402\.receipt\/1\.0\.0/, /0 bps/i, /10 bps/, /MPP.{0,24}not implemented/i, /AP2.{0,24}not implemented/i];
       const missing = need.filter((re) => !re.test(llms.body));
       if (missing.length) results.push(fail("llms surfaces", "core facts", "missing required phrases", "llms", llmsUrl));
       else results.push(pass("llms surfaces"));

@@ -38,7 +38,7 @@ Live mode GET-fetches production URLs. Network failure is a failing check.
 | Fact | Value |
 |---|---|
 | beta | 0 bps |
-| standard | 50 bps / 0.5% |
+| standard | 10 bps / 0.1% |
 | MCP | not implemented |
 | receipt | fiscal402.receipt/1.0.0 |
 | GitHub | https://github.com/Fiscal402/Fiscal402 |

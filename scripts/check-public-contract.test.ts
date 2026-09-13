@@ -26,5 +26,5 @@ test("mcp: true fails", () => {
 test("truth table is the public protocol repo", () => {
   assert.equal(PUBLIC_TRUTH.github, "https://github.com/Fiscal402/Fiscal402");
   assert.equal(PUBLIC_TRUTH.betaBps, 0);
-  assert.equal(PUBLIC_TRUTH.standardBps, 50);
+  assert.equal(PUBLIC_TRUTH.standardBps, 10);
 });

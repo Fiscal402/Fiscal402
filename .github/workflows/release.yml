@@ -1,0 +1,38 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type publish to publish @fiscal402 packages"
+        required: true
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.confirm == 'publish'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run pack:inspect
+      - name: Publish (requires npm org fiscal402 + trusted publisher)
+        run: |
+          npm publish --workspace=@fiscal402/verify --access public --provenance
+          npm publish --workspace=@fiscal402/sdk --access public --provenance
+          npm publish --workspace=@fiscal402/node --access public --provenance
+          npm publish --workspace=@fiscal402/cli --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

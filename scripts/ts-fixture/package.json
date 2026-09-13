@@ -1,0 +1,9 @@
+{
+  "name": "fiscal402-ts-fixture",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@fiscal402/sdk": "file:../../packages/sdk",
+    "@fiscal402/node": "file:../../packages/node"
+  }
+}
