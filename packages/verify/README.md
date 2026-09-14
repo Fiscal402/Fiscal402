@@ -2,8 +2,12 @@
 
 Independent verifier for `fiscal402.receipt/1.0.0` and experimental `fiscal402.receipt/2.0.0`.
 
+Works **offline** on frozen fixtures. No API key. Compatible ≠ calling `api.fiscal402.com`.
+
 This package does **not** classify VAT, look up VIES, quote FX, or ingest settlements.
 It checks receipt integrity: schema id, canonical payload, Ed25519 signature, JWKS key, and optional artifact hash.
+
+The in-browser playground on https://www.fiscal402.com/docs/packages is a reference verifier, not a required network service.
 
 ## Publication status
 
@@ -11,7 +15,7 @@ It checks receipt integrity: schema id, canonical payload, Ed25519 signature, JW
 
 - source available on GitHub
 - verifier builds locally
-- CLI runs locally
+- CLI runs locally on `test-vectors/valid/`
 - package **not published to npm yet**
 
 **Planned**
@@ -50,7 +54,7 @@ node packages/verify/dist/cli.js \
   --artifact-id uk-vat-determination-1=test-vectors/v2/valid/uk-vat-determination.json
 ```
 
-Exit `0` only when the outcome is `VERIFIED`.
+Exit `0` only when the outcome is `VERIFIED`. Exit `1` = not verified. Exit `2` = invalid invocation.
 
 ## API
 
