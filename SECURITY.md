@@ -6,7 +6,9 @@ Do **not** open a public issue for secrets, private keys, or exploitable verific
 
 Use [GitHub private vulnerability reporting](https://github.com/Fiscal402/Fiscal402/security/advisories/new) on this repository.
 
-There is no separate security mailbox published in this repository.
+Contact: legal@fiscal402.com · hello@fiscal402.com · privacy@fiscal402.com
+
+Do not send private keys, merchant keys, customer VAT IDs, or personal invoice data to public issues.
 
 ## Never submit
 
