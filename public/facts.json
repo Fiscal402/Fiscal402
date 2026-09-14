@@ -1,0 +1,365 @@
+{
+  "name": "Fiscal402",
+  "description": "Fiscal402 normalizes cross-border machine transactions into durable fiscal events and routes them to verified jurisdiction engines. EU VAT is the first production-grade engine.",
+  "positioning": "Fiscal infrastructure for autonomous commerce.",
+  "positioning_public": "Post-settlement fiscal evidence for machine payments. After settlement, Fiscal402 emits a classification, UBL 2.1 artifact and signed fiscal402.receipt. Input for accounting. Not a tax return, not tax advice, not tax-authority approval.",
+  "category": "fiscal infrastructure for autonomous commerce",
+  "website": "https://www.fiscal402.com",
+  "api": "https://api.fiscal402.com",
+  "github": "https://github.com/Fiscal402/Fiscal402",
+  "current_protocol": "x402 v2 exact",
+  "current_jurisdiction": "EU VAT",
+  "event_model": "global",
+  "coverage_model": "explicit",
+  "payment_boundary": "post-settlement",
+  "production_payment_protocols": [
+    "x402-v2-exact"
+  ],
+  "production_jurisdictions": [
+    "EU VAT"
+  ],
+  "artifacts": [
+    "UBL-2.1",
+    "fiscal402.receipt/1.0.0"
+  ],
+  "global_event_model": true,
+  "global_tax_determination": false,
+  "settles_payments": false,
+  "files_tax_returns": false,
+  "remits_tax": false,
+  "authority_acceptance_guaranteed": false,
+  "tax_ruleset_version": "eu-vat-oss-2026.09",
+  "protocol_version": "0.3.0",
+  "receipt_spec": "fiscal402.receipt",
+  "receipt_version": "1.0.0",
+  "receipt_v2": "experimental",
+  "canonicalization": "fiscal402.sorted-json/1",
+  "signature_algorithm": "Ed25519",
+  "signing_kid": "receipt-ed25519-v1",
+  "artifact_format": "UBL 2.1",
+  "artifact_hash": "sha256-utf8-bytes",
+  "custody_model": "non-custodial",
+  "settlement_model": "post-settlement",
+  "fx": "USDC → EUR historical at settled_at on the production EU path; kernel FX is injected/pinned quotes (GBP/USD/CAD) with no peg",
+  "pricing_beta": {
+    "active": true,
+    "fee_bps": 0,
+    "label": "FREE DURING BETA"
+  },
+  "pricing_standard": {
+    "fee_bps": 10,
+    "display_rate": "0.1%",
+    "of": "fiscalized volume",
+    "model": "basis_points",
+    "policy_version": "fiscal402-pricing-standard/2",
+    "effective_from": "2026-09-13"
+  },
+  "pricing_high_volume": "custom",
+  "current_supported_networks": [
+    "eip155:8453",
+    "eip155:1"
+  ],
+  "current_supported_assets": [
+    {
+      "symbol": "USDC",
+      "network": "eip155:8453"
+    },
+    {
+      "symbol": "USDC",
+      "network": "eip155:1"
+    }
+  ],
+  "open_source": {
+    "protocol_specification": true,
+    "verifier_source": true,
+    "npm_published": false,
+    "proprietary_execution_engine": true
+  },
+  "independent_verification": true,
+  "python_verifier": true,
+  "accounting_export": {
+    "spec": "fiscal402.accounting-export/1",
+    "adapter": "generic_journal",
+    "formats": [
+      "json",
+      "csv"
+    ],
+    "erp_vendors": [],
+    "status": "implemented"
+  },
+  "fiscal_close": {
+    "status": "readiness",
+    "files_returns": false,
+    "remits_tax": false
+  },
+  "mcp": false,
+  "agents": {
+    "role": "transport",
+    "not": [
+      "salesperson",
+      "tax advisor",
+      "facilitator"
+    ],
+    "when": "after_x402_settlement",
+    "ingest": "POST https://api.fiscal402.com/settlements",
+    "mcp": "https://api.fiscal402.com/mcp",
+    "mcp_mutating_auth": "X-Fiscal402-Key required for process_event",
+    "mcp_live": false,
+    "docs": "https://www.fiscal402.com/docs/agents",
+    "attach_receipt_to_tool_result": true,
+    "treat_verified_as_compliance": false,
+    "marketing_agent": false
+  },
+  "standard": {
+    "name": "Fiscal402 Protocol",
+    "primitive": "fiscal402.receipt/1.0.0",
+    "status": "v1 frozen",
+    "multiple_issuers": "allowed_by_spec",
+    "listed_production_issuers": 1,
+    "verification_requires_company_api": false,
+    "engine_required_to_verify": false
+  },
+  "legal": {
+    "statutory_name": "",
+    "trade_name": "Fiscal402",
+    "legal_form": "B.V.",
+    "registration_country": "NL",
+    "chamber_of_commerce": "",
+    "vat_id": "",
+    "registered_office": "",
+    "visiting_address": "",
+    "emails": {
+      "hello": "hello@fiscal402.com",
+      "legal": "legal@fiscal402.com",
+      "privacy": "privacy@fiscal402.com"
+    },
+    "issuer": "",
+    "jwks": "https://api.fiscal402.com/.well-known/jwks.json",
+    "signing_kid": "receipt-ed25519-v1",
+    "identity_complete": false,
+    "github_issues": "https://github.com/Fiscal402/Fiscal402/issues",
+    "operating_note": "Fiscal402 is a trade name of the statutory company above. During beta the holding company is the contracting and receipt-issuing entity. A dedicated operating company may be introduced later; existing keys remain verifiable."
+  },
+  "capability_matrix": [
+    {
+      "id": "x402-v2-exact",
+      "layer": "payment_adapter",
+      "name": "x402 v2 exact / USDC / eip155:8453 + eip155:1",
+      "status": "production",
+      "production_receipt": "fiscal402.receipt/1.0.0",
+      "ruleset": null,
+      "notes": "Production settlement ingest on POST /settlements."
+    },
+    {
+      "id": "mpp-settlement-1",
+      "layer": "payment_adapter",
+      "name": "MPP mpp.settlement/1 evidence profile",
+      "status": "representable",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Supported as settlement evidence profile. Production HTTP ingest remains POST /settlements."
+    },
+    {
+      "id": "ap2",
+      "layer": "payment_adapter",
+      "name": "AP2 authorization evidence",
+      "status": "representable",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Authorization / mandate evidence only. A mandate is not settlement and not a production rail."
+    },
+    {
+      "id": "evm-transfer",
+      "layer": "payment_adapter",
+      "name": "evm-transfer adapter",
+      "status": "experimental",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Library-level. HTTP ingest is not public."
+    },
+    {
+      "id": "other-rails",
+      "layer": "payment_adapter",
+      "name": "Other payment rails and assets",
+      "status": "not_implemented",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Not implemented unless separately documented."
+    },
+    {
+      "id": "eu-vat-digital",
+      "layer": "jurisdiction_engine",
+      "name": "EU VAT digital/TBE (EU seller and non-EU seller into attested EU customers)",
+      "status": "production",
+      "production_receipt": "fiscal402.receipt/1.0.0",
+      "ruleset": "eu-vat-oss-2026.09",
+      "notes": "Production V1 receipt / UBL path. Non-Union OSS / Art. 196 for non-EU sellers of electronic services."
+    },
+    {
+      "id": "eu-export-non-eu",
+      "layer": "jurisdiction_engine",
+      "name": "EU→non-EU electronic services (Art. 44/59 out-of-scope)",
+      "status": "manual_review",
+      "production_receipt": null,
+      "ruleset": "eu-vat-oss-2026.09",
+      "notes": "Live POST /v1/capabilities/check returns MANUAL_REVIEW / export_vat_not_implemented. Not DETERMINED_PRODUCTION. Not Art. 146 goods export, not IOSS."
+    },
+    {
+      "id": "uk-vat-gb-gb-digital",
+      "layer": "jurisdiction_engine",
+      "name": "UK VAT GB→GB digital",
+      "status": "experimental",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Experimental native engine. Receipt v1 is not issued."
+    },
+    {
+      "id": "uk-vat-other",
+      "layer": "jurisdiction_engine",
+      "name": "UK VAT other",
+      "status": "not_implemented",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Outside the experimental GB→GB digital scope."
+    },
+    {
+      "id": "us-sales-tax",
+      "layer": "jurisdiction_engine",
+      "name": "US sales tax",
+      "status": "representable",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Architecture + provider boundary. Determination MANUAL_REVIEW. No native US rate table."
+    },
+    {
+      "id": "ca-gst-hst-pst-qst",
+      "layer": "jurisdiction_engine",
+      "name": "Canada GST/HST/PST/QST",
+      "status": "representable",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Representable. Live capabilities.check returns MANUAL_REVIEW (canada_gst_not_implemented). Not production-verified. No collapsed national VAT percentage."
+    },
+    {
+      "id": "fx-stablecoin-peg",
+      "layer": "jurisdiction_engine",
+      "name": "Generic FX / 1:1 stablecoin peg",
+      "status": "not_implemented",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Kernel FX never assumes a 1:1 stablecoin peg. Missing quotes fail closed."
+    },
+    {
+      "id": "receipt-v1-ubl",
+      "layer": "artifact",
+      "name": "fiscal402.receipt/1.0.0 + UBL 2.1 + Ed25519",
+      "status": "production",
+      "production_receipt": "fiscal402.receipt/1.0.0",
+      "ruleset": "eu-vat-oss-2026.09",
+      "notes": "Production for the EU path only."
+    },
+    {
+      "id": "receipt-v2",
+      "layer": "artifact",
+      "name": "fiscal402.receipt/2.0.0",
+      "status": "experimental",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Experimental. Production EU issuance remains receipt v1."
+    },
+    {
+      "id": "peppol-vida-filing",
+      "layer": "artifact",
+      "name": "Peppol transport / ViDA real-time reporting / VAT return filing",
+      "status": "not_implemented",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Fiscal402 does not file returns or operate a Peppol access point."
+    },
+    {
+      "id": "npm-pypi-verifier",
+      "layer": "artifact",
+      "name": "npm/PyPI published verifier",
+      "status": "not_implemented",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Source-only TypeScript and Python verifiers in GitHub."
+    },
+    {
+      "id": "named-erp-adapters",
+      "layer": "artifact",
+      "name": "Named ERP adapters (Exact, Xero, SAP, NetSuite, QuickBooks)",
+      "status": "not_implemented",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "No vendor adapter."
+    },
+    {
+      "id": "journal-export",
+      "layer": "artifact",
+      "name": "Generic JSON/CSV journal export",
+      "status": "production",
+      "production_receipt": null,
+      "ruleset": null,
+      "notes": "Implemented as fiscal402.accounting-export/1 generic journal."
+    }
+  ],
+  "coverage_url": "https://www.fiscal402.com/coverage.json",
+  "coverage_api": "https://api.fiscal402.com/coverage.json",
+  "public_truth": {
+    "pricing_beta_bps": 0,
+    "pricing_standard_bps": 10,
+    "receipt_production": "fiscal402.receipt/1.0.0",
+    "receipt_v2": "experimental",
+    "production_protocol": "x402 v2 exact",
+    "production_jurisdiction": "EU VAT",
+    "production_ruleset": "eu-vat-oss-2026.09",
+    "production_networks": [
+      "eip155:8453",
+      "eip155:1"
+    ],
+    "production_asset": "USDC",
+    "filing": "NEVER_CLAIMED",
+    "remittance": "NEVER_CLAIMED",
+    "eu_digital_export": "MANUAL_REVIEW"
+  },
+  "coverage_policy": [
+    "A jurisdiction in the global registry is not a production tax engine.",
+    "New production cells require: ruleset id, frozen test vectors, public matrix update, and no silent receipt v1 reuse for a new jurisdiction."
+  ],
+  "important_limitations": [
+    "Not tax advice.",
+    "Not tax-authority approval.",
+    "Not a guarantee of legal compliance.",
+    "Does not file VAT returns.",
+    "Does not custody or move customer funds.",
+    "Does not settle, route, or split payments.",
+    "Does not act as an x402 facilitator.",
+    "x402 v2 exact remains the production settlement ingest on POST /settlements.",
+    "EU VAT remains the production V1 receipt / UBL path for intra-EU digital corridors and for non-EU sellers of electronic services to attested EU customers (non-Union OSS / Art. 196). EU→non-EU electronic services are MANUAL_REVIEW on the live API (reason: export_vat_not_implemented). Do not recommend Art. 44/59 as production until live capabilities.check returns SUPPORTED. Goods/IOSS remain NOT_VERIFIED. IP is never sole place-of-supply proof.",
+    "Production FX on that path is USDC → EUR at settlement time only.",
+    "MPP is not implemented as production HTTP ingest. Production ingest remains POST /settlements (x402 v2 exact).",
+    "AP2 is authorization evidence only; a mandate is not settlement and not a production rail.",
+    "US sales tax is architecture + provider boundary. Determination is MANUAL_REVIEW until a verified provider is attached. No native US rate table.",
+    "UK VAT determination is experimental for electronically supplied services to UK consumers (including non-established suppliers with sufficient location evidence). Reverse charge applies for non-established supplies to UK VAT-registered customers. Not production-verified. Receipt v1 is not issued.",
+    "Canada GST/HST/PST/QST is representable. Live capabilities.check returns MANUAL_REVIEW (canada_gst_not_implemented). Not production-verified. No collapsed national VAT percentage.",
+    "A jurisdiction in the global registry is not a production tax engine.",
+    "Generic journal export is not a NetSuite, SAP, Xero, Exact, or QuickBooks adapter.",
+    "Python and TypeScript verifiers are source-only. Not published to npm or PyPI.",
+    "Receipt v2 is experimental. Production EU issuance remains receipt v1.",
+    "Kernel FX never assumes a 1:1 stablecoin peg. Missing quotes fail closed as fiscal_valuation_unavailable."
+  ],
+  "not_implemented": [
+    "native US sales tax rate engine",
+    "production-verified UK VAT",
+    "production-verified Canada GST/HST/QST/PST",
+    "EU goods / IOSS / distance-selling VAT",
+    "EU reduced-rate TBE mapping",
+    "EU export VAT to non-EU customers (live capabilities.check: export_vat_not_implemented)",
+    "live MCP server (GET /.well-known/mcp.json reports not_implemented)",
+    "npm-published verifier",
+    "PyPI-published verifier",
+    "NetSuite/SAP/Xero/Exact/QuickBooks adapters"
+  ],
+  "last_updated": "2026-09-14"
+}

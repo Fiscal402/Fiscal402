@@ -1,0 +1,299 @@
+{
+  "spec": "fiscal402.coverage/1",
+  "last_updated": "2026-09-14",
+  "public_truth": {
+    "pricing_beta_bps": 0,
+    "pricing_standard_bps": 10,
+    "pricing_standard_display": "0.1%",
+    "receipt_production": "fiscal402.receipt/1.0.0",
+    "receipt_v2": "experimental",
+    "production_protocol": "x402 v2 exact",
+    "production_jurisdiction": "EU VAT",
+    "production_ruleset": "eu-vat-oss-2026.09",
+    "production_networks": [
+      "eip155:8453",
+      "eip155:1"
+    ],
+    "production_asset": "USDC",
+    "filing": "NEVER_CLAIMED",
+    "remittance": "NEVER_CLAIMED",
+    "canonicalization": "fiscal402.sorted-json/1",
+    "signature": "Ed25519"
+  },
+  "vocabulary": {
+    "event_model": [
+      "SUPPORTED",
+      "REPRESENTABLE",
+      "UNSUPPORTED"
+    ],
+    "determination": [
+      "DETERMINED_PRODUCTION",
+      "EXPERIMENTAL",
+      "MANUAL_REVIEW",
+      "NOT_VERIFIED",
+      "OUT_OF_SCOPE",
+      "INSUFFICIENT_EVIDENCE"
+    ],
+    "receipt": [
+      "V1_SUPPORTED",
+      "V2_SUPPORTED",
+      "UNSUPPORTED"
+    ],
+    "filing": [
+      "NEVER_CLAIMED"
+    ],
+    "remittance": [
+      "NEVER_CLAIMED"
+    ]
+  },
+  "cells": [
+    {
+      "id": "x402-v2-exact",
+      "name": "x402 v2 exact / USDC / Base + Ethereum",
+      "layer": "payment_adapter",
+      "event_model": "SUPPORTED",
+      "determination": "DETERMINED_PRODUCTION",
+      "receipt": "V1_SUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Production HTTP ingest on POST /settlements.",
+      "what_evidence_would_unblock_it": null,
+      "production_receipt": "fiscal402.receipt/1.0.0"
+    },
+    {
+      "id": "mpp-settlement-1",
+      "name": "MPP mpp.settlement/1 evidence profile",
+      "layer": "payment_adapter",
+      "event_model": "REPRESENTABLE",
+      "determination": "NOT_VERIFIED",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Evidence profile exists. Production HTTP ingest remains POST /settlements (x402 v2 exact).",
+      "what_evidence_would_unblock_it": "Public post-settlement MPP spec + golden settlement vectors + HTTP ingest adapter + capabilities entry in the same PR."
+    },
+    {
+      "id": "ap2",
+      "name": "AP2 authorization evidence",
+      "layer": "payment_adapter",
+      "event_model": "REPRESENTABLE",
+      "determination": "NOT_VERIFIED",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "A mandate is authorization, not settlement.",
+      "what_evidence_would_unblock_it": "Bind a later CanonicalSettlement to the mandate. Do not fiscalize the mandate alone."
+    },
+    {
+      "id": "evm-transfer",
+      "name": "evm-transfer adapter",
+      "layer": "payment_adapter",
+      "event_model": "REPRESENTABLE",
+      "determination": "EXPERIMENTAL",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Library-level ERC-20 evidence. HTTP ingest is not public.",
+      "what_evidence_would_unblock_it": "Public HTTP ingest, confirmation policy, and golden vectors."
+    },
+    {
+      "id": "eu-vat-intra-b2c-oss",
+      "name": "Intra-EU B2C electronic services (OSS destination standard rate)",
+      "layer": "jurisdiction_engine",
+      "event_model": "SUPPORTED",
+      "determination": "DETERMINED_PRODUCTION",
+      "receipt": "V1_SUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Attested EU seller + attested EU consumer + electronic supply. Standard rate of destination member state. IP is not sole proof.",
+      "what_evidence_would_unblock_it": null,
+      "ruleset": "eu-vat-oss-2026.09",
+      "production_receipt": "fiscal402.receipt/1.0.0"
+    },
+    {
+      "id": "eu-vat-intra-b2b-art-196",
+      "name": "Intra-EU B2B reverse charge (Art. 196) when VIES accepts the VAT ID",
+      "layer": "jurisdiction_engine",
+      "event_model": "SUPPORTED",
+      "determination": "DETERMINED_PRODUCTION",
+      "receipt": "V1_SUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "VIES-accepted taxable person in another member state → AE / 0%. Failed or pending VIES is not reverse charge.",
+      "what_evidence_would_unblock_it": null,
+      "ruleset": "eu-vat-oss-2026.09",
+      "production_receipt": "fiscal402.receipt/1.0.0"
+    },
+    {
+      "id": "eu-vat-non-union-oss",
+      "name": "Non-EU seller → attested EU customer electronic services (Art. 58 / Art. 196)",
+      "layer": "jurisdiction_engine",
+      "event_model": "SUPPORTED",
+      "determination": "DETERMINED_PRODUCTION",
+      "receipt": "V1_SUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Non-Union OSS destination standard rate, or Art. 196 reverse charge when VIES accepts.",
+      "what_evidence_would_unblock_it": null,
+      "ruleset": "eu-vat-oss-2026.09",
+      "production_receipt": "fiscal402.receipt/1.0.0"
+    },
+    {
+      "id": "eu-export-non-eu-digital",
+      "name": "EU seller → attested non-EU customer electronic services",
+      "layer": "jurisdiction_engine",
+      "event_model": "SUPPORTED",
+      "determination": "MANUAL_REVIEW",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Live POST /v1/capabilities/check returns MANUAL_REVIEW with reason export_vat_not_implemented. Art. 44/59 out-of-scope is not production until that live status is SUPPORTED. Not Art. 146 goods export, not IOSS, not a guessed VAT percentage.",
+      "what_evidence_would_unblock_it": "Same-release API deploy: live capabilities.check SUPPORTED for attested EU seller + non-EU buyer + electronic supply, then flip this cell to DETERMINED_PRODUCTION.",
+      "ruleset": "eu-vat-oss-2026.09"
+    },
+    {
+      "id": "eu-goods-ioss",
+      "name": "EU goods / distance selling / IOSS",
+      "layer": "jurisdiction_engine",
+      "event_model": "REPRESENTABLE",
+      "determination": "NOT_VERIFIED",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "No goods/IOSS engine. Electronic-services ruleset must not invent a goods rate.",
+      "what_evidence_would_unblock_it": "Dated IOSS/goods ruleset, golden vectors, and an explicit engine. Supply.kind of goods is not enough.",
+      "ruleset": "eu-vat-oss-2026.09"
+    },
+    {
+      "id": "eu-reduced-rate-tbe",
+      "name": "EU reduced / super-reduced rates for electronic services",
+      "layer": "jurisdiction_engine",
+      "event_model": "SUPPORTED",
+      "determination": "NOT_VERIFIED",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Reduced/super-reduced bands are documented on the 2026.09 snapshot. TBE/SaaS/API use the standard rate. No verified supply-to-band mapping (e.g. e-publications).",
+      "what_evidence_would_unblock_it": "Per-member-state verified mapping of supply type → reduced band, sourced and tested. Until then, do not apply a reduced rate to TBE.",
+      "ruleset": "eu-vat-oss-2026.09"
+    },
+    {
+      "id": "uk-vat-gb-gb-digital",
+      "name": "UK VAT GB digital",
+      "layer": "jurisdiction_engine",
+      "event_model": "SUPPORTED",
+      "determination": "EXPERIMENTAL",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Experimental native engine. Not production-verified. Receipt v1 is not issued.",
+      "what_evidence_would_unblock_it": "Qualified tax review, GBP FX production path, UK invoice fields, golden vectors, public matrix update. Do not reuse receipt v1."
+    },
+    {
+      "id": "us-sales-tax",
+      "name": "US sales tax",
+      "layer": "jurisdiction_engine",
+      "event_model": "REPRESENTABLE",
+      "determination": "MANUAL_REVIEW",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Provider boundary. No native US rate table. Nexus is never inferred from a single transaction.",
+      "what_evidence_would_unblock_it": "Verified provider (TaxJar/Avalara/Vertex/Sovos-class) or official dated rate dataset + nexus attestation + destination + taxability + marketplace-facilitator flag."
+    },
+    {
+      "id": "ca-gst-hst-pst-qst",
+      "name": "Canada GST/HST/PST/QST",
+      "layer": "jurisdiction_engine",
+      "event_model": "REPRESENTABLE",
+      "determination": "MANUAL_REVIEW",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Experimental native digital engines exist and are not production-verified. MB RST / SK PST remain MANUAL_REVIEW. No collapsed national VAT.",
+      "what_evidence_would_unblock_it": "Qualified tax review, attested consumer province, seller registration numbers per regime, CAD FX production path. Do not reuse receipt v1."
+    },
+    {
+      "id": "row-registry",
+      "name": "Rest-of-world jurisdiction registry",
+      "layer": "jurisdiction_engine",
+      "event_model": "REPRESENTABLE",
+      "determination": "NOT_VERIFIED",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "A registry row is not a tax engine. Unknown rates fail closed.",
+      "what_evidence_would_unblock_it": "Per-country dated ruleset, required facts list, golden vectors, public matrix update."
+    },
+    {
+      "id": "receipt-v1-ubl",
+      "name": "fiscal402.receipt/1.0.0 + UBL 2.1 invoice",
+      "layer": "artifact",
+      "event_model": "SUPPORTED",
+      "determination": "DETERMINED_PRODUCTION",
+      "receipt": "V1_SUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Production for the EU VAT path. Hash is SHA-256 of exact UTF-8 bytes. VIES in the public receipt is status + vat_id_hash, not the raw VAT ID.",
+      "what_evidence_would_unblock_it": null,
+      "ruleset": "eu-vat-oss-2026.09",
+      "production_receipt": "fiscal402.receipt/1.0.0"
+    },
+    {
+      "id": "ubl-credit-note",
+      "name": "UBL 2.1 CreditNote (UNCL 381)",
+      "layer": "artifact",
+      "event_model": "SUPPORTED",
+      "determination": "EXPERIMENTAL",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Factory exists (generateUbl21CreditNote). Production issuance still emits invoices. Corrections remain append-only events.",
+      "what_evidence_would_unblock_it": "Wire credit-note emission to the correction ledger with golden hash vectors, without changing receipt v1 invoice bytes."
+    },
+    {
+      "id": "peppol-bis3-mapping",
+      "name": "PEPPOL BIS Billing 3.0 mapping",
+      "layer": "artifact",
+      "event_model": "REPRESENTABLE",
+      "determination": "NOT_VERIFIED",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "CustomizationID mapping helper only. Fiscal402 does not operate a PEPPOL access point and does not transmit documents.",
+      "what_evidence_would_unblock_it": "Implemented access point, SMP registration, and transport tests. Mapping identifiers is not network access."
+    },
+    {
+      "id": "receipt-v2",
+      "name": "fiscal402.receipt/2.0.0",
+      "layer": "artifact",
+      "event_model": "SUPPORTED",
+      "determination": "EXPERIMENTAL",
+      "receipt": "V2_SUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Experimental multi-jurisdiction envelope. Production EU issuance remains v1.",
+      "what_evidence_would_unblock_it": "Frozen v2 schema, independent JWKS verify, golden vectors, no silent v1 reuse."
+    },
+    {
+      "id": "named-erp-adapters",
+      "name": "Named ERP adapters",
+      "layer": "artifact",
+      "event_model": "UNSUPPORTED",
+      "determination": "NOT_VERIFIED",
+      "receipt": "UNSUPPORTED",
+      "filing": "NEVER_CLAIMED",
+      "remittance": "NEVER_CLAIMED",
+      "why": "Generic JSON/CSV journal exists. Exact/Xero/QuickBooks/NetSuite/SAP adapters do not.",
+      "what_evidence_would_unblock_it": "Optional exporters from the journal. Adapters post documents; they do not file returns."
+    }
+  ],
+  "exceptions": {
+    "missing_buyer_country": "MANUAL_REVIEW / missing_buyer_country",
+    "missing_supply_type": "MANUAL_REVIEW / missing_supply_type",
+    "ip_or_wallet_only": "MANUAL_REVIEW / ip_not_sole_place_of_supply",
+    "failed_or_pending_vies": "PENDING_MANUAL_REVIEW — reverse charge is not applied",
+    "stale_rate_table": "MANUAL_REVIEW / historical_rate_not_in_ruleset",
+    "goods": "MANUAL_REVIEW / goods_distance_selling_not_verified"
+  }
+}

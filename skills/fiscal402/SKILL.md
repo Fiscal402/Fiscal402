@@ -10,7 +10,7 @@ metadata:
 
 Read https://www.fiscal402.com/llms.txt first. Do not recall coverage from memory.
 
-Facts: https://www.fiscal402.com/facts.json.
+Facts: https://www.fiscal402.com/facts.json. Repo snapshots: public/coverage.json, public/facts.json, public/llms.txt.
 
 Fiscal402 is post-settlement fiscal evidence for settled x402 v2 exact USDC payments. It is non-custodial and does not move funds, issue HTTP 402, or file VAT.
 
@@ -20,7 +20,7 @@ Before ingest — POST https://api.fiscal402.com/v1/capabilities/check with sell
 
 Only ingest when the check returns DETERMINED_PRODUCTION, unless the user explicitly accepts review.
 
-If https://www.fiscal402.com/coverage.json is 404, treat coverage as unknown and use the check response.
+If https://www.fiscal402.com/coverage.json is 404, read public/coverage.json as a snapshot and still confirm with capabilities.check.
 
 Ingest — POST https://api.fiscal402.com/settlements with X-Fiscal402-Key and Idempotency-Key. Full payloads in references/ingest.md.
 

@@ -20,7 +20,7 @@ Fiscal402 is post-settlement fiscal evidence for settled x402 v2 exact USDC paym
 
 VERIFIED means cryptographic integrity, not tax-authority acceptance.
 
-If https://www.fiscal402.com/coverage.json is 404, treat live coverage as unknown and use capabilities.check. Do not invent DETERMINED_PRODUCTION. Do not recommend UK/US/Canada, goods/IOSS, filing, remittance, or EU→non-EU digital export as production.
+If https://www.fiscal402.com/coverage.json is 404, read [public/coverage.json](public/coverage.json) as a snapshot and still POST capabilities.check. Do not invent DETERMINED_PRODUCTION. Do not recommend UK/US/Canada, goods/IOSS, filing, remittance, or EU→non-EU digital export as production.
 
 See [docs/agents.md](docs/agents.md).
 
@@ -102,7 +102,7 @@ The company API is one issuer’s hosted product. It is not the spec.
 - Protocol: [https://www.fiscal402.com/protocol](https://www.fiscal402.com/protocol)
 - Receipt spec: [https://www.fiscal402.com/protocol/receipt](https://www.fiscal402.com/protocol/receipt)
 - Facts (pricing, legal entity, production corridors): [https://www.fiscal402.com/facts.json](https://www.fiscal402.com/facts.json)
-- Coverage: [https://www.fiscal402.com/coverage.json](https://www.fiscal402.com/coverage.json) (if 404, treat coverage as unknown and POST `/v1/capabilities/check`)
+- Coverage: [https://www.fiscal402.com/coverage.json](https://www.fiscal402.com/coverage.json) (if 404, read [public/coverage.json](public/coverage.json) and POST `/v1/capabilities/check`)
 - Models: [https://www.fiscal402.com/llms.txt](https://www.fiscal402.com/llms.txt)
 - Legal: [https://www.fiscal402.com/legal](https://www.fiscal402.com/legal)
 - API: [https://api.fiscal402.com](https://api.fiscal402.com)

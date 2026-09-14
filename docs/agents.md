@@ -9,3 +9,5 @@ Fiscal402 is post-settlement fiscal evidence for settled x402 v2 exact USDC paym
 3. Verify — `node packages/verify/dist/cli.js` after `npm install && npm run build`. Source-only. Not on npm.
 
 VERIFIED means cryptographic integrity, not tax-authority acceptance.
+
+If https://www.fiscal402.com/coverage.json is 404, read [public/coverage.json](../public/coverage.json) as a snapshot and still confirm with capabilities.check.

@@ -6,7 +6,7 @@ Read [skills/fiscal402/SKILL.md](skills/fiscal402/SKILL.md) and https://www.fisc
 
 ## Production corridor
 
-EU VAT digital services on x402 v2 exact USDC (`eip155:8453`, `eip155:1`) only. Confirm with POST https://api.fiscal402.com/v1/capabilities/check. If https://www.fiscal402.com/coverage.json is 404, treat coverage as unknown and use the check response.
+EU VAT digital services on x402 v2 exact USDC (`eip155:8453`, `eip155:1`) only. Confirm with POST https://api.fiscal402.com/v1/capabilities/check. If https://www.fiscal402.com/coverage.json is 404, read [public/coverage.json](public/coverage.json) as a snapshot and still use the check response.
 
 Not production: UK VAT receipts, native US sales tax, Canada GST/HST/PST/QST, goods/IOSS, EU→non-EU digital export, filing, remittance.
 
