@@ -1,6 +1,62 @@
 # Fiscal402 protocol
 
-The public interoperability surface is `fiscal402.receipt`.
+x402 is the payment standard (HTTP 402 + settle).
+Fiscal402 Protocol is the post-settlement evidence standard.
+The company trading as Fiscal402 is the first production issuer and the first EU determination engine. It is not the only allowed issuer in the spec.
+
+If a machine payment has settled, this is the portable object that can exist afterwards — whoever runs the tax engine.
+
+The public interoperability surface is `fiscal402.receipt`. Fiscal402 is not x402.
+
+The spec allows multiple issuers; today one production issuer is listed.
+
+## Split
+
+- **Protocol** — how fiscal evidence is represented and verified
+- **Company** — hosted determination, event history, production EU engine
+- **x402** — payment rail. Fiscal402 does not settle or facilitate.
+
+Hosted product facts (pricing, legal entity, production corridors) live in [https://www.fiscal402.com/facts.json](https://www.fiscal402.com/facts.json). Do not duplicate drifting numbers here.
+
+## Compatibility
+
+A system is Fiscal402-compatible if it can do at least one of:
+
+### A. Verify
+
+- Accept `fiscal402.receipt/1.0.0`
+- Canonicalize with `fiscal402.sorted-json/1`
+- Check Ed25519 over the canonical payload hash
+- Resolve `kid` via issuer JWKS
+- If an artifact is bound, check sha256 of exact UTF-8 UBL 2.1 bytes
+- Emit `VERIFIED` | `INVALID` | `UNKNOWN_KEY` | `ARTIFACT_MISMATCH` with the existing meanings
+
+### B. Issue
+
+- Emit `receipt/1.0.0` that passes the public v1 test vectors / schema
+- Publish JWKS
+- Bind settlement evidence + determination summary + artifact hashes as already specified
+- Fail closed when a corridor is not production (no guessed rates)
+
+### C. Consume
+
+- Persist receipt + bound UBL hash
+- Treat `VERIFIED` as integrity only
+- Not treat the receipt as a VAT return
+
+Compatible ≠ “uses api.fiscal402.com”.
+Compatible ≠ “uses the company’s EU engine”.
+The company’s engine is one conforming implementation.
+
+See [docs/COMPATIBILITY.md](../docs/COMPATIBILITY.md).
+
+## Conformance
+
+Frozen v1 fixtures: `test-vectors/valid/`. A class A verifier must return `VERIFIED` on those bytes without calling `api.fiscal402.com`.
+
+v1 receipts are verified by JWKS + `kid`. Legal entity is an out-of-band issuer registry (website `/legal` + `facts.json legal.*`). Do not add KvK as a required v1 field.
+
+JSON Schema: [`schemas/fiscal402.receipt-1.0.0.schema.json`](../schemas/fiscal402.receipt-1.0.0.schema.json) — required fields are frozen: `spec`, `spec_version`, `settlement`, `artifacts`, `hashes`, `signature`.
 
 ## Current production path
 
@@ -118,3 +174,5 @@ Do not treat `PaymentEvidence` / `FiscalEvent` as a published interchange format
 - Not VIES orchestration
 - Not settlement ingest
 - Not a claim of tax-authority acceptance
+- Not a Fiscal402 Foundation
+- Not a second production issuer
