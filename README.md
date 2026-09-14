@@ -13,6 +13,11 @@ Fiscal402 is post-settlement fiscal infrastructure for autonomous commerce. It t
 - Website: [https://www.fiscal402.com](https://www.fiscal402.com)
 - Protocol: [https://www.fiscal402.com/protocol](https://www.fiscal402.com/protocol)
 - Verification: [https://www.fiscal402.com/verify](https://www.fiscal402.com/verify)
+- API: [https://api.fiscal402.com](https://api.fiscal402.com)
+- API docs: [https://api.fiscal402.com/docs](https://api.fiscal402.com/docs)
+- API reference: [https://api.fiscal402.com/reference](https://api.fiscal402.com/reference)
+- OpenAPI: [https://api.fiscal402.com/openapi.json](https://api.fiscal402.com/openapi.json)
+- Capabilities: [https://api.fiscal402.com/v1/capabilities](https://api.fiscal402.com/v1/capabilities)
 - API discovery: [https://api.fiscal402.com/.well-known/fiscal402.json](https://api.fiscal402.com/.well-known/fiscal402.json)
 - This repository: specification, JSON Schema, test vectors, source-only verifier
 - Public contract: [docs/PUBLIC_CONTRACT.md](docs/PUBLIC_CONTRACT.md) (`npm run check:public` / `npm run check:public:live`)
