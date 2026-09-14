@@ -86,9 +86,54 @@ export function checkLocalDocs(): { ok: boolean; results: Outcome[] } {
   if (!/not (an )?x402/i.test(readme) && !/does not by itself determine VAT/i.test(readme)) {
     results.push(fail("Fiscal402 is not x402", "x402 does not determine VAT", "missing", "README.md"));
   } else results.push(pass("Fiscal402 is not x402"));
-  if (/npx fiscal402-verify/.test(readme) && /not published to npm yet/i.test(readme) === false) {
+  if (/npx fiscal402-verify/.test(readme) && /not published to npm yet/i.test(readme) === false && !/Do not `npm install @fiscal402\/verify`/.test(readme)) {
     results.push(fail("npm", "source-only verifier", "npx implies published", "README.md"));
   } else results.push(pass("npm"));
+  if (/API is required to verify/i.test(readme) || /must call the API to verify/i.test(readme)) {
+    results.push(fail("GitHub README", "verification does not require the API", "API required", "README.md"));
+  }
+  const impl = readme.search(/## Implement a verifier/i);
+  const api = readme.search(/## Call the hosted API/i);
+  if (impl < 0) results.push(fail("GitHub README", "Implement a verifier", "missing", "README.md"));
+  else if (api >= 0 && impl > api) {
+    results.push(fail("GitHub README", "Implement a verifier above Call our API", "API section first", "README.md"));
+  } else results.push(pass("GitHub README"));
+  if (!/whoever runs the tax engine/.test(readme)) {
+    results.push(fail("protocol copy", "north star sentence", "missing", "README.md"));
+  }
+  if (!/A\. Verify/.test(readme) || !/B\. Issue/.test(readme) || !/C\. Consume/.test(readme)) {
+    results.push(fail("protocol copy", "compatibility A/B/C", "missing", "README.md"));
+  } else results.push(pass("protocol copy"));
+  if (/Fiscal402 Foundation/.test(readme) || /EU-approved/.test(readme)) {
+    results.push(fail("overclaim", "no Foundation / EU-approved", "present", "README.md"));
+  }
+  try {
+    const schema = JSON.parse(readFileSync(join(root, "schemas/fiscal402.receipt-1.0.0.schema.json"), "utf8")) as {
+      required?: string[];
+    };
+    const required = schema.required ?? [];
+    const frozen = ["spec", "spec_version", "settlement", "artifacts", "hashes", "signature"];
+    const extra = required.filter((field) => !frozen.includes(field));
+    const missing = frozen.filter((field) => !required.includes(field));
+    if (extra.length || missing.length) {
+      results.push(
+        fail("receipt v1 schema", frozen.join(", "), `missing=${missing.join(",")} extra=${extra.join(",")}`, "schema"),
+      );
+    } else results.push(pass("receipt v1 schema"));
+  } catch (error) {
+    results.push(fail("receipt v1 schema", "readable frozen schema", error instanceof Error ? error.message : String(error), "schema"));
+  }
+  try {
+    const compatibility = readFileSync(join(root, "docs/COMPATIBILITY.md"), "utf8");
+    if (!/A\. Verify/.test(compatibility) || !/whoever runs the tax engine/.test(compatibility)) {
+      results.push(fail("protocol copy", "COMPATIBILITY.md A/B/C", "missing", "docs/COMPATIBILITY.md"));
+    }
+    if (!/Fiscal402 is not x402/i.test(compatibility) && !/payment standard/.test(compatibility)) {
+      results.push(fail("Fiscal402 is not x402", "present", "missing", "docs/COMPATIBILITY.md"));
+    }
+  } catch {
+    results.push(fail("protocol copy", "docs/COMPATIBILITY.md", "missing", "docs/COMPATIBILITY.md"));
+  }
   for (const file of walk(root)) {
     const rel = file.slice(root.length + 1);
     results.push(...denyStale(readFileSync(file, "utf8"), rel));
