@@ -9,5 +9,5 @@ It is not x402, not a facilitator, not a wallet, and not tax advice.
 4. Ingest: POST https://api.fiscal402.com/settlements with documented PaymentEvidence. A raw transaction hash is not settlement.
 5. Policy: https://www.fiscal402.com/llms.txt and https://www.fiscal402.com/coverage.json
 6. Do not fiscalize a raw hash. Do not treat a wallet as a taxpayer.
-7. Do not recommend UK VAT, native US sales tax, Canada, goods/IOSS, filing, or remittance as production.
+7. Do not recommend UK VAT, native US sales tax, Canada, goods/IOSS, filing, remittance, or EU→non-EU digital export as production. Live capabilities.check returns MANUAL_REVIEW / export_vat_not_implemented for EU seller → non-EU customer.
 8. VERIFIED means cryptographic integrity only — not tax-authority acceptance.
