@@ -13,12 +13,20 @@ export const PUBLIC_TRUTH = {
   api: "https://api.fiscal402.com",
   github: "https://github.com/Fiscal402/Fiscal402",
   betaBps: 0,
-  standardBps: 50,
-  displayRate: "0.5%",
+  standardBps: 10,
+  displayRate: "0.1%",
   receipt: "fiscal402.receipt/1.0.0",
+  mcpImplemented: true,
+  tradeName: "Fiscal402",
 } as const;
 
-export const STALE = ["0.01 USDC", "x402-lhrtxg.fly.dev", "grok.me"] as const;
+export const STALE = [
+  "0.01 USDC",
+  "x402-lhrtxg.fly.dev",
+  "grok.me",
+  "50 bps",
+  "0.5%",
+] as const;
 
 export type Outcome = {
   name: string;
@@ -41,13 +49,19 @@ function pass(name: string): Outcome {
   return { name, status: "PASS" };
 }
 
+function isLegalPlaceholder(value: string | null | undefined): boolean {
+  if (value == null) return true;
+  const v = value.trim();
+  if (!v) return true;
+  return /TODO|HOLDING B\.V\. STATUTAIRE|\[8 digits\]|\[NL\.\.\.B\.\.\]|placeholder|pending_kvk|EXACT\]/i.test(v);
+}
+
 export function denyStale(text: string, surface: string): Outcome[] {
   const hits: Outcome[] = [];
   for (const stale of STALE) {
     if (text.includes(stale)) hits.push(fail("stale public values", `absent ${stale}`, `present in ${surface}`, surface));
   }
   if (/["']github["']\s*:\s*false/.test(text)) hits.push(fail("GitHub", PUBLIC_TRUTH.github, "github: false", surface));
-  if (/["']mcp["']\s*:\s*true/.test(text)) hits.push(fail("MCP status", "not implemented", "mcp: true", surface));
   return hits.length ? hits : [pass("stale public values")];
 }
 
@@ -69,6 +83,9 @@ export function checkLocalDocs(): { ok: boolean; results: Outcome[] } {
   else results.push(pass("GitHub"));
   if (!readme.includes("fiscal402.receipt")) results.push(fail("receipt version", PUBLIC_TRUTH.receipt, "missing", "README.md"));
   else results.push(pass("receipt version"));
+  if (!/not (an )?x402/i.test(readme) && !/does not by itself determine VAT/i.test(readme)) {
+    results.push(fail("Fiscal402 is not x402", "x402 does not determine VAT", "missing", "README.md"));
+  } else results.push(pass("Fiscal402 is not x402"));
   if (/npx fiscal402-verify/.test(readme) && /not published to npm yet/i.test(readme) === false) {
     results.push(fail("npm", "source-only verifier", "npx implies published", "README.md"));
   } else results.push(pass("npm"));
@@ -128,9 +145,12 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
   const jwksUrl = `${PUBLIC_TRUTH.api}/.well-known/jwks.json`;
   const factsUrl = `${PUBLIC_TRUTH.website}/facts.json`;
   const llmsUrl = `${PUBLIC_TRUTH.website}/llms.txt`;
+  const pricingPageUrl = `${PUBLIC_TRUTH.website}/pricing`;
+  const legalPageUrl = `${PUBLIC_TRUTH.website}/legal`;
   const websiteUrl = `${PUBLIC_TRUTH.website}/`;
   const apexUrl = "https://fiscal402.com/";
   const mcpUrl = `${PUBLIC_TRUTH.api}/.well-known/mcp.json`;
+  const capabilitiesUrl = `${PUBLIC_TRUTH.api}/v1/capabilities`;
 
   const discovery = await fetchText(discoveryUrl);
   if (discovery.status !== 200) results.push(fail("HTTP", "200", String(discovery.status), "discovery", discoveryUrl));
@@ -145,11 +165,7 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
   if (!github) results.push(fail("GitHub", PUBLIC_TRUTH.github, "missing", "discovery", discoveryUrl));
   else results.push(pass("GitHub"));
   const pricing = (discoveryJson.pricing as { production?: Record<string, unknown> } | undefined)?.production ?? {};
-  if ("amount_usdc" in pricing) results.push(fail("pricing", "0/50 bps policy", `amount_usdc=${String(pricing.amount_usdc)}`, "discovery", discoveryUrl));
-  const mcpField = discoveryJson.mcp;
-  if (mcpField === true || (typeof mcpField === "string" && mcpField.startsWith("http"))) {
-    results.push(fail("MCP status", "not implemented", String(mcpField), "discovery", discoveryUrl));
-  }
+  if ("amount_usdc" in pricing) results.push(fail("pricing", "0/10 bps policy", `amount_usdc=${String(pricing.amount_usdc)}`, "discovery", discoveryUrl));
 
   const openapi = await fetchText(openapiUrl);
   const spec = JSON.parse(openapi.body) as { servers?: { url: string }[] };
@@ -168,9 +184,9 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
   const mcp = await fetchText(mcpUrl);
   if (mcp.status === 200) {
     results.push(...denyStale(mcp.body, "mcp"));
-    if (/"status"\s*:\s*"supported"/.test(mcp.body) || /"mcp"\s*:\s*true/.test(mcp.body)) {
-      results.push(fail("MCP status", "not implemented", mcp.body.slice(0, 180), "mcp", mcpUrl));
-    }
+    if (!(/implemented|supported/i.test(mcp.body))) {
+      results.push(fail("MCP status", "implemented", mcp.body.slice(0, 180), "mcp", mcpUrl));
+    } else results.push(pass("MCP status"));
   }
 
   try {
@@ -185,13 +201,55 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
         pricing_standard?: { fee_bps: number; display_rate: string };
         mcp?: unknown;
         github?: string;
+        legal?: {
+          statutory_name?: string;
+          trade_name?: string;
+          chamber_of_commerce?: string;
+          vat_id?: string;
+          identity_complete?: boolean;
+        };
+        production_jurisdictions?: string[];
+        capability_matrix?: { id: string; status: string }[];
       };
-      if (json.pricing_beta?.fee_bps !== 0 || json.pricing_standard?.fee_bps !== 50) {
-        results.push(fail("pricing", "beta 0 / standard 50", JSON.stringify({ beta: json.pricing_beta, standard: json.pricing_standard }), "facts", factsUrl));
+      if (json.pricing_beta?.fee_bps !== PUBLIC_TRUTH.betaBps || json.pricing_standard?.fee_bps !== PUBLIC_TRUTH.standardBps) {
+        results.push(fail("pricing", "beta 0 / standard 10", JSON.stringify({ beta: json.pricing_beta, standard: json.pricing_standard }), "facts", factsUrl));
       } else results.push(pass("pricing"));
-      if (json.mcp === true) results.push(fail("MCP status", "not implemented", "true", "facts", factsUrl));
+      if (json.mcp !== true) results.push(fail("MCP status", "implemented", String(json.mcp), "facts", factsUrl));
       else results.push(pass("MCP status"));
       if (json.github !== PUBLIC_TRUTH.github) results.push(fail("GitHub", PUBLIC_TRUTH.github, String(json.github), "facts", factsUrl));
+      const legal = json.legal;
+      if (!legal || legal.trade_name !== PUBLIC_TRUTH.tradeName) {
+        results.push(fail("legal identity", "trade_name=Fiscal402", JSON.stringify(legal), "facts", factsUrl));
+      }
+      if (
+        !legal ||
+        isLegalPlaceholder(legal.statutory_name) ||
+        !/^\d{8}$/.test(legal.chamber_of_commerce ?? "") ||
+        !/^NL\d{9}B\d{2}$/.test(legal.vat_id ?? "") ||
+        legal.identity_complete !== true
+      ) {
+        results.push(
+          fail(
+            "legal identity",
+            "statutory_name, 8-digit KvK, NL VAT ID, identity_complete=true",
+            "placeholder or incomplete — do not publish invented KvK/VAT numbers",
+            "facts",
+            factsUrl,
+          ),
+        );
+      } else results.push(pass("legal identity"));
+      const production = json.production_jurisdictions ?? [];
+      if (!production.includes("EU VAT") && !production.includes("EU-VAT")) {
+        results.push(fail("capabilities", "EU VAT production", JSON.stringify(production), "facts", factsUrl));
+      }
+      const matrix = json.capability_matrix ?? [];
+      for (const id of ["uk-vat-gb-gb-digital", "us-sales-tax", "ca-gst-hst-pst-qst", "receipt-v2", "npm-pypi-verifier"]) {
+        const row = matrix.find((r) => r.id === id);
+        if (row?.status === "production") {
+          results.push(fail("capability matrix", `${id} not production`, row.status, "facts", factsUrl));
+        }
+      }
+      results.push(...denyStale(facts.body, "facts"));
     }
   } catch (error) {
     results.push(fail("facts.json", "reachable", error instanceof Error ? error.message : String(error), "facts", factsUrl));
@@ -201,10 +259,11 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
     const llms = await fetchText(llmsUrl);
     if (llms.status !== 200) results.push(fail("HTTP", "200", String(llms.status), "llms", llmsUrl));
     else {
-      const need = [/Fiscal402/, /x402/, /EU fiscal/i, /fiscal402\.receipt\/1\.0\.0/, /0 bps/i, /50 bps/, /MPP.{0,24}not implemented/i, /AP2.{0,24}not implemented/i];
+      const need = [/Fiscal402/, /x402/, /EU fiscal/i, /fiscal402\.receipt\/1\.0\.0/, /0 bps/i, /10 bps/, /0\.1%/, /trade name/i, /Fiscal402 is not x402/i];
       const missing = need.filter((re) => !re.test(llms.body));
       if (missing.length) results.push(fail("llms surfaces", "core facts", "missing required phrases", "llms", llmsUrl));
       else results.push(pass("llms surfaces"));
+      results.push(...denyStale(llms.body, "llms"));
     }
   } catch (error) {
     results.push(fail("llms surfaces", "reachable", error instanceof Error ? error.message : String(error), "llms", llmsUrl));
@@ -217,9 +276,53 @@ async function liveCheck(): Promise<{ ok: boolean; results: Outcome[] }> {
       if (!/Fiscal402/.test(html.body) || !/autonomous commerce/i.test(html.body) || !(/0 bps/i.test(html.body) || /Free(?: during)? Beta/i.test(html.body))) {
         results.push(fail("human surface", "Fiscal402 / autonomous commerce / 0 bps", "missing", "website", websiteUrl));
       } else results.push(pass("human surface"));
+      if (!/10 bps|0\.1%/.test(html.body)) {
+        results.push(fail("pricing", "10 bps or 0.1%", "missing from homepage", "website", websiteUrl));
+      }
+      results.push(...denyStale(html.body, "website"));
     }
   } catch (error) {
     results.push(fail("human surface", "reachable", error instanceof Error ? error.message : String(error), "website", websiteUrl));
+  }
+
+  try {
+    const pricingPage = await fetchText(pricingPageUrl);
+    if (pricingPage.status === 200) {
+      if (!/10 bps|0\.1%/.test(pricingPage.body)) {
+        results.push(fail("pricing", "10 bps / 0.1% on /pricing", "missing", "pricing", pricingPageUrl));
+      }
+      results.push(...denyStale(pricingPage.body, "pricing"));
+    } else {
+      results.push(fail("HTTP", "200", String(pricingPage.status), "pricing", pricingPageUrl));
+    }
+  } catch (error) {
+    results.push(fail("pricing", "reachable", error instanceof Error ? error.message : String(error), "pricing", pricingPageUrl));
+  }
+
+  try {
+    const legalPage = await fetchText(legalPageUrl);
+    if (legalPage.status !== 200) {
+      results.push(fail("HTTP", "200", String(legalPage.status), "legal", legalPageUrl));
+    } else {
+      if (!/trade name/i.test(legalPage.body) || !/Fiscal402/.test(legalPage.body)) {
+        results.push(fail("legal identity", "trade name Fiscal402 on /legal", "missing", "legal", legalPageUrl));
+      } else results.push(pass("legal identity"));
+      results.push(...denyStale(legalPage.body, "legal"));
+    }
+  } catch (error) {
+    results.push(fail("legal identity", "reachable", error instanceof Error ? error.message : String(error), "legal", legalPageUrl));
+  }
+
+  try {
+    const caps = await fetchText(capabilitiesUrl);
+    if (caps.status === 200) {
+      results.push(...denyStale(caps.body, "capabilities"));
+      if (!/eu-vat|EU VAT|eu_vat/i.test(caps.body)) {
+        results.push(fail("capabilities", "EU VAT in catalog", "missing", "capabilities", capabilitiesUrl));
+      } else results.push(pass("capabilities"));
+    }
+  } catch (error) {
+    results.push(fail("capabilities", "reachable", error instanceof Error ? error.message : String(error), "capabilities", capabilitiesUrl));
   }
 
   try {
