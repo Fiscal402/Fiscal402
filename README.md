@@ -2,9 +2,9 @@
 
 Fiscal infrastructure for autonomous commerce.
 
-Turn settled machine payments into verifiable fiscal events.
+Turn settled machine payments into verifiable fiscal evidence.
 
-Fiscal402 is post-settlement fiscal infrastructure. It processes supported settled machine payments into durable fiscal events and verifiable fiscal artifacts. x402 v2 exact is the production payment protocol; EU VAT is the production jurisdiction engine. Fiscal402 does not settle payments and does not custody customer funds.
+Fiscal402 is post-settlement fiscal infrastructure. It processes supported settled machine payments into durable fiscal events and verifiable fiscal artifacts. x402 v2 exact is the production payment protocol; EU VAT is the production jurisdiction engine. Fiscal402 does not settle payments and does not custody customer funds. Fiscal402 is a trade name of a Netherlands B.V. Statutory KvK and VAT numbers are published on [https://www.fiscal402.com/legal](https://www.fiscal402.com/legal) once registered.
 
 > x402 handles payment authorization and settlement. It does not by itself determine VAT.
 
@@ -22,6 +22,7 @@ Fiscal402 is post-settlement fiscal infrastructure. It processes supported settl
 - Canonicalization: [https://www.fiscal402.com/protocol/canonicalization](https://www.fiscal402.com/protocol/canonicalization)
 - Verification: [https://www.fiscal402.com/docs/verification](https://www.fiscal402.com/docs/verification)
 - Facts: [https://www.fiscal402.com/facts](https://www.fiscal402.com/facts)
+- Legal: [https://www.fiscal402.com/legal](https://www.fiscal402.com/legal)
 - API: [https://api.fiscal402.com](https://api.fiscal402.com)
 - API docs: [https://api.fiscal402.com/docs](https://api.fiscal402.com/docs)
 - API reference: [https://api.fiscal402.com/reference](https://api.fiscal402.com/reference)
@@ -102,8 +103,8 @@ FiscalArtifact[]
 Receipt Kernel
       ↓
 Receipt Projection
-   ├── fiscal402.receipt/1.0.0
-   └── fiscal402.receipt/2.0.0
+   ├─ fiscal402.receipt/1.0.0
+   └─ fiscal402.receipt/2.0.0
 ```
 
 `FiscalDetermination` is **output** from processing a `FiscalEvent`.
@@ -147,6 +148,14 @@ node packages/verify/dist/cli.js \
   --jwks test-vectors/v2/valid/jwks.json \
   --artifact-id uk-vat-determination-1=test-vectors/v2/valid/uk-vat-determination.json
 ```
+
+## Legal
+
+Fiscal402 is a trade name of a Netherlands B.V. During beta the holding company is the contracting and receipt-issuing entity. Statutory name, KvK and VAT ID are published at [https://www.fiscal402.com/legal](https://www.fiscal402.com/legal) once registered. They are not invented in this repository.
+
+Receipt v1 is frozen. Legal issuer metadata lives on `/legal`, JWKS, and optional receipt v2 experimental fields. Verification proves cryptographic integrity, not legal validity.
+
+Contact: hello@fiscal402.com · legal@fiscal402.com · privacy@fiscal402.com · [GitHub issues](https://github.com/Fiscal402/Fiscal402/issues). Do not send private keys, customer VAT IDs, or personal invoice data to public issues.
 
 ## Suggested topics
 
