@@ -176,3 +176,16 @@ ebcaf0dcddb4908ca6683847f8b2be9e0ce9c07399d4fc067e244505f3b1a3d4
 ```
 
 This digest is **not** the v1 golden digest.
+
+## Legal issuer (experimental, optional)
+
+v2 `issuer` currently carries `id` and optional `key_id`. These reserved names may appear as experimental optional fields. They MUST NOT be required, and they MUST NOT be back-ported as required v1 fields:
+
+- `issuer_name` — trade name (Fiscal402)
+- `issuer_legal_entity` — statutory company name
+- `issuer_registration` / `issuer_kvk` — Chamber of Commerce or equivalent
+- `issuer_jwks` — JWKS URL
+- `kid` — signing key id (`receipt-ed25519-v1` on current production keys)
+
+Canonical legal identity is [https://www.fiscal402.com/legal](https://www.fiscal402.com/legal) and JWKS metadata. Presence of issuer fields does not make a receipt a legally valid invoice, a VAT return, or tax-authority acceptance. Frozen v2 fixtures are not mutated to add these fields.
+

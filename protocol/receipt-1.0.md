@@ -94,6 +94,20 @@ See [artifact-binding.md](./artifact-binding.md).
 
 See [canonicalization.md](./canonicalization.md) and [signatures.md](./signatures.md).
 
+## Legal issuer
+
+v1 is frozen. These fields are **not required** and MUST NOT be added as required v1 properties:
+
+- `issuer_name`
+- `issuer_legal_entity`
+- `issuer_kvk` / `issuer_registration`
+- `issuer_jwks`
+- `kid` (v1 already binds `signature.key_id`)
+
+Legal identity lives at [https://www.fiscal402.com/legal](https://www.fiscal402.com/legal), in JWKS key metadata (`kid` `receipt-ed25519-v1`), and as optional receipt v2 experimental issuer fields. An unsigned companion document may also carry issuer identity. Verification proves cryptographic integrity, not legal validity, tax-authority acceptance, or a VAT return.
+
+Do not mutate frozen v1 fixtures to add issuer fields.
+
 ## Compatibility debt (intentional)
 
 These v1 fields stay. The generic format is [`fiscal402.receipt/2.0.0`](./receipt-2.0.md). v1 is not deprecated.
