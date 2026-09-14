@@ -65,6 +65,83 @@ export function denyStale(text: string, surface: string): Outcome[] {
   return hits.length ? hits : [pass("stale public values")];
 }
 
+const SKILL_TRIGGERS = ["x402", "EU VAT", "UBL", "USDC invoice", "fiscal receipt"] as const;
+const SKILL_REFUSALS = ["wallet", "HTTP 402", "facilitat", "filing", "remittance", "US sales tax", "UK", "Canada"] as const;
+
+export function checkCodingAgentSkill(text: string, directoryName: string): Outcome[] {
+  const results: Outcome[] = [];
+  if (!text.startsWith("---\n")) {
+    return [fail("coding-agent skill", "YAML frontmatter", "missing", "skills/fiscal402/SKILL.md")];
+  }
+  const end = text.indexOf("\n---\n", 4);
+  if (end < 0) {
+    return [fail("coding-agent skill", "closed frontmatter", "unclosed", "skills/fiscal402/SKILL.md")];
+  }
+  const fm = text.slice(4, end);
+  const body = text.slice(end + 5);
+  const name = /^name:\s*(\S+)\s*$/m.exec(fm)?.[1];
+  if (name !== "fiscal402" || directoryName !== "fiscal402") {
+    results.push(
+      fail("coding-agent skill", "name=fiscal402 matching directory", `${name ?? "missing"} / ${directoryName}`, "skills/fiscal402/SKILL.md"),
+    );
+  } else results.push(pass("coding-agent skill name"));
+  const description = /^description:\s*(.*)$/m.exec(fm)?.[1] ?? "";
+  if (/^["']/.test(description) || /["']$/.test(description.trim())) {
+    results.push(fail("coding-agent skill", "unquoted description scalar", "quoted", "skills/fiscal402/SKILL.md"));
+  }
+  if (/: /.test(description) || /[<>]/.test(description)) {
+    results.push(
+      fail("coding-agent skill", "no colon-space or <> in description", description.slice(0, 120), "skills/fiscal402/SKILL.md"),
+    );
+  }
+  const missingTriggers = SKILL_TRIGGERS.filter((term) => !description.includes(term));
+  if (missingTriggers.length) {
+    results.push(
+      fail(
+        "coding-agent skill",
+        `description triggers: ${SKILL_TRIGGERS.join(", ")}`,
+        `missing ${missingTriggers.join(", ")}`,
+        "skills/fiscal402/SKILL.md",
+      ),
+    );
+  } else results.push(pass("coding-agent skill description"));
+  const missingRefusals = SKILL_REFUSALS.filter((term) => !description.toLowerCase().includes(term.toLowerCase()));
+  if (missingRefusals.length) {
+    results.push(
+      fail("coding-agent skill", "description refusals", `missing ${missingRefusals.join(", ")}`, "skills/fiscal402/SKILL.md"),
+    );
+  }
+  const bodyLines = body.split("\n").length;
+  if (bodyLines > 50) {
+    results.push(fail("coding-agent skill", "body < 50 lines", `${bodyLines} lines`, "skills/fiscal402/SKILL.md"));
+  } else results.push(pass("coding-agent skill body"));
+  if (!/llms\.txt/.test(body)) {
+    results.push(fail("coding-agent skill", "read llms.txt first", "missing", "skills/fiscal402/SKILL.md"));
+  }
+  if (!/capabilities\/check/.test(body)) {
+    results.push(fail("coding-agent skill", "POST /v1/capabilities/check", "missing", "skills/fiscal402/SKILL.md"));
+  }
+  if (!/\/settlements/.test(body)) {
+    results.push(fail("coding-agent skill", "POST /settlements", "missing", "skills/fiscal402/SKILL.md"));
+  }
+  if (!/DETERMINED_PRODUCTION/.test(body)) {
+    results.push(fail("coding-agent skill", "ingest only DETERMINED_PRODUCTION", "missing", "skills/fiscal402/SKILL.md"));
+  }
+  if (!/cryptographic integrity/i.test(body)) {
+    results.push(fail("coding-agent skill", "VERIFIED = cryptographic integrity", "missing", "skills/fiscal402/SKILL.md"));
+  }
+  if (/npx fiscal402-verify/.test(body) && !/not published|do not npx|source-only/i.test(body)) {
+    results.push(fail("coding-agent skill", "source-only verify", "npx implies published", "skills/fiscal402/SKILL.md"));
+  }
+  if (!/packages\/verify/.test(body) && !/source-only/i.test(body)) {
+    results.push(fail("coding-agent skill", "source-only verify command", "missing", "skills/fiscal402/SKILL.md"));
+  }
+  if (/ignore (all )?(other|previous) instructions/i.test(body)) {
+    results.push(fail("coding-agent skill", "do not tell agents to ignore other instructions", "present", "skills/fiscal402/SKILL.md"));
+  }
+  return results;
+}
+
 function walk(dir: string, acc: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     if (name === "node_modules" || name === "dist" || name === ".git" || name === "scripts") continue;
@@ -106,6 +183,36 @@ export function checkLocalDocs(): { ok: boolean; results: Outcome[] } {
   } else results.push(pass("protocol copy"));
   if (/Fiscal402 Foundation/.test(readme) || /EU-approved/.test(readme)) {
     results.push(fail("overclaim", "no Foundation / EU-approved", "present", "README.md"));
+  }
+  const firstHeading = /^\s*## .+$/m.exec(readme)?.[0] ?? "";
+  if (!/For coding agents/i.test(firstHeading)) {
+    results.push(fail("GitHub README", "For coding agents first ## section", firstHeading || "missing", "README.md"));
+  } else results.push(pass("coding-agent README"));
+  if (!/skills\/fiscal402\/SKILL\.md/.test(readme)) {
+    results.push(fail("GitHub README", "skills/fiscal402/SKILL.md", "missing", "README.md"));
+  }
+  try {
+    const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+    if (!/skills\/fiscal402\/SKILL\.md/.test(agents) || !/llms\.txt/.test(agents)) {
+      results.push(fail("coding-agent skill", "AGENTS.md points at skill + llms.txt", "missing", "AGENTS.md"));
+    } else if (agents.split("\n").length > 60) {
+      results.push(fail("coding-agent skill", "AGENTS.md < 60 lines", `${agents.split("\n").length} lines`, "AGENTS.md"));
+    } else results.push(pass("coding-agent AGENTS.md"));
+  } catch {
+    results.push(fail("coding-agent skill", "AGENTS.md", "missing", "AGENTS.md"));
+  }
+  try {
+    const skill = readFileSync(join(root, "skills/fiscal402/SKILL.md"), "utf8");
+    results.push(...checkCodingAgentSkill(skill, "fiscal402"));
+  } catch (error) {
+    results.push(
+      fail(
+        "coding-agent skill",
+        "skills/fiscal402/SKILL.md",
+        error instanceof Error ? error.message : String(error),
+        "skills/fiscal402/SKILL.md",
+      ),
+    );
   }
   try {
     const schema = JSON.parse(readFileSync(join(root, "schemas/fiscal402.receipt-1.0.0.schema.json"), "utf8")) as {
