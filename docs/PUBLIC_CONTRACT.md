@@ -14,6 +14,7 @@ This repository is the protocol surface. The checker keeps it honest against the
 | Surface | URL |
 |---|---|
 | Human | https://www.fiscal402.com |
+| Legal | https://www.fiscal402.com/legal |
 | Retrieval | https://www.fiscal402.com/facts.json |
 | LLM | https://www.fiscal402.com/llms.txt |
 | Agent discovery | https://api.fiscal402.com/.well-known/fiscal402.json |
@@ -38,9 +39,15 @@ Live mode GET-fetches production URLs. Network failure is a failing check.
 | Fact | Value |
 |---|---|
 | beta | 0 bps |
-| standard | 50 bps / 0.5% |
-| MCP | not implemented |
+| standard | 10 bps / 0.1% of fiscalized volume |
+| MCP | implemented (JSON-RPC /mcp) |
 | receipt | fiscal402.receipt/1.0.0 |
 | GitHub | https://github.com/Fiscal402/Fiscal402 |
+| legal.trade_name | Fiscal402 |
+| legal.identity | Netherlands B.V.; statutory KvK/VAT pending registration |
 
 When a capability becomes real, update this table and `scripts/check-public-contract.ts` (`PUBLIC_TRUTH`) in one change.
+
+Denied in public output: `0.01 USDC`, `x402-lhrtxg.fly.dev`, `grok.me`, `github: false`, stale standard rates, and invented KvK/VAT numbers.
+
+Fiscal402 is not x402. Fiscal402 is not a tax authority or filing product.
