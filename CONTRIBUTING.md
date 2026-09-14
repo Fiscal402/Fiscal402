@@ -20,6 +20,8 @@ Not in scope here:
 
 Proprietary jurisdiction engines are not modified from this repository.
 
+When changing coverage vocabulary or production corridors, update `skills/fiscal402` in the same change.
+
 ## Tests
 
 ```bash

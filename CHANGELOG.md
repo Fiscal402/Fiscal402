@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Coding-agent skill at `skills/fiscal402/SKILL.md` plus root `AGENTS.md`. README “For coding agents” is the first section after the title. Verifier remains source-only. Live MCP origin reports `not_implemented` — confirm `/.well-known/mcp.json` before POSTing `/mcp`.
 - Document protocol/company split and compatibility classes A/B/C. No wire change to receipt/1.0.0.
 - Trust pass: Fiscal402 is a trade name of a Netherlands B.V. Legal identity is documented at https://www.fiscal402.com/legal. Statutory KvK/VAT numbers are not invented. Public-contract checker now requires 10 bps standard, 0 bps beta, MCP implemented, and fails until legal identity is registered.
 - Public contract checker: `npm run check:public` (local docs) and `npm run check:public:live` (production surfaces). Daily GitHub Actions live check.

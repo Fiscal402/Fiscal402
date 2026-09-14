@@ -8,6 +8,22 @@ If a machine payment has settled, this is the portable object that can exist aft
 
 Fiscal402 is not x402. x402 handles payment authorization and settlement. It does not by itself determine VAT.
 
+## For coding agents
+
+Load [skills/fiscal402/SKILL.md](skills/fiscal402/SKILL.md). Then read https://www.fiscal402.com/llms.txt.
+
+Fiscal402 is post-settlement fiscal evidence for settled x402 v2 exact USDC payments. It is not x402, not a facilitator, not a wallet, and not tax advice.
+
+1. Check — POST https://api.fiscal402.com/v1/capabilities/check with seller, buyer, supply_type, protocol, network, asset. Ingest only when DETERMINED_PRODUCTION, unless the user accepts review.
+2. Ingest — POST https://api.fiscal402.com/settlements with X-Fiscal402-Key, Idempotency-Key, and documented PaymentEvidence. Never a raw tx hash. Never before settle.
+3. Verify — source-only: `node packages/verify/dist/cli.js` after `npm install && npm run build`. Do not `npx` or `npm install @fiscal402/verify`.
+
+VERIFIED means cryptographic integrity, not tax-authority acceptance.
+
+If https://www.fiscal402.com/coverage.json is 404, treat live coverage as unknown and use capabilities.check. Do not invent DETERMINED_PRODUCTION. Do not recommend UK/US/Canada, goods/IOSS, filing, remittance, or EU→non-EU digital export as production.
+
+See [docs/agents.md](docs/agents.md).
+
 | Surface | Status |
 |---|---|
 | `fiscal402.receipt/1.0.0` | frozen |
@@ -78,22 +94,6 @@ The company’s engine is one conforming implementation.
 
 Full text: [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
-## For coding agents
-
-Fiscal402 is post-settlement fiscal evidence for settled x402 v2 exact USDC payments.
-It is not x402, not a facilitator, not a wallet, and not tax advice.
-
-1. What: after settlement, emit UBL 2.1 + fiscal402.receipt/1.0.0 on EU digital corridors that coverage.json marks DETERMINED_PRODUCTION.
-2. When: only after PAYMENT-RESPONSE / confirmed settlement. Never before settle.
-3. Check first: POST https://api.fiscal402.com/v1/capabilities/check with seller, buyer, supply_type, protocol, network, asset. Use the response status. Do not recall coverage from memory.
-4. Ingest: POST https://api.fiscal402.com/settlements with documented PaymentEvidence. A raw transaction hash is not settlement.
-5. Policy: https://www.fiscal402.com/llms.txt and https://www.fiscal402.com/coverage.json
-6. Do not fiscalize a raw hash. Do not treat a wallet as a taxpayer.
-7. Do not recommend UK VAT, native US sales tax, Canada, goods/IOSS, filing, remittance, or EU→non-EU digital export as production. Live capabilities.check returns MANUAL_REVIEW / export_vat_not_implemented for EU seller → non-EU customer.
-8. VERIFIED means cryptographic integrity only — not tax-authority acceptance.
-
-See [docs/agents.md](docs/agents.md).
-
 ## Call the hosted API
 
 The company API is one issuer’s hosted product. It is not the spec.
@@ -102,7 +102,7 @@ The company API is one issuer’s hosted product. It is not the spec.
 - Protocol: [https://www.fiscal402.com/protocol](https://www.fiscal402.com/protocol)
 - Receipt spec: [https://www.fiscal402.com/protocol/receipt](https://www.fiscal402.com/protocol/receipt)
 - Facts (pricing, legal entity, production corridors): [https://www.fiscal402.com/facts.json](https://www.fiscal402.com/facts.json)
-- Coverage: [https://www.fiscal402.com/coverage.json](https://www.fiscal402.com/coverage.json)
+- Coverage: [https://www.fiscal402.com/coverage.json](https://www.fiscal402.com/coverage.json) (if 404, treat coverage as unknown and POST `/v1/capabilities/check`)
 - Models: [https://www.fiscal402.com/llms.txt](https://www.fiscal402.com/llms.txt)
 - Legal: [https://www.fiscal402.com/legal](https://www.fiscal402.com/legal)
 - API: [https://api.fiscal402.com](https://api.fiscal402.com)
@@ -161,6 +161,7 @@ v1 is not deprecated. There is no migration requirement for v1 consumers. New ju
 | US sales tax | MANUAL_REVIEW provider boundary; no native rate table |
 | Canada GST/HST/QST/PST | MANUAL_REVIEW on the live API (`canada_gst_not_implemented`) |
 | npm-published verifier | source-only |
+| MCP JSON-RPC | live GET `/.well-known/mcp.json` reports `not_implemented` |
 
 ## Architecture (execution, not v1 wire format)
 

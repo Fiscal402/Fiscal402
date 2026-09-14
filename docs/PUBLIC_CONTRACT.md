@@ -19,6 +19,7 @@ This repository is the protocol surface. The checker keeps it honest against the
 | Protocol | https://www.fiscal402.com/protocol |
 | Retrieval | https://www.fiscal402.com/facts.json |
 | LLM | https://www.fiscal402.com/llms.txt |
+| Coding-agent skill | skills/fiscal402/SKILL.md |
 | Agent discovery | https://api.fiscal402.com/.well-known/fiscal402.json |
 | API capabilities | https://api.fiscal402.com/v1/capabilities |
 | API contract | https://api.fiscal402.com/openapi.json |
@@ -33,7 +34,7 @@ npm run check:public
 npm run check:public:live
 ```
 
-Local mode scans this repository for stale public pricing, temporary Fly hostnames, preview hosts, false GitHub claims, protocol/company overclaims, and frozen v1 required fields.
+Local mode scans this repository for stale public pricing, temporary Fly hostnames, preview hosts, false GitHub claims, protocol/company overclaims, frozen v1 required fields, and coding-agent skill hygiene.
 
 Live mode GET-fetches production URLs. Network failure is a failing check. CI runs local on push/PR and live on a daily schedule.
 
@@ -44,7 +45,7 @@ Live mode GET-fetches production URLs. Network failure is a failing check. CI ru
 | beta | `pricing_beta.fee_bps === 0` |
 | standard | `pricing_standard.fee_bps === 10` (0.1% of fiscalized volume) |
 | high volume | custom contracted |
-| MCP | implemented (JSON-RPC /mcp) |
+| MCP | live GET `/.well-known/mcp.json` reports `not_implemented`; confirm before POST `/mcp` |
 | receipt | fiscal402.receipt/1.0.0 frozen |
 | GitHub | https://github.com/Fiscal402/Fiscal402 |
 | legal.trade_name | Fiscal402 |
@@ -55,17 +56,22 @@ Live mode GET-fetches production URLs. Network failure is a failing check. CI ru
 | named ERP adapters | not_implemented |
 | listed production issuers | 1 |
 | verification requires company API | false |
+| coding-agent skill | skills/fiscal402/SKILL.md |
 
 Checkable statements:
 
 - README contains the protocol/company/x402 split and compatibility A/B/C
 - README does not say the API is required to verify
 - Implement a verifier appears above Call the hosted API
+- For coding agents is the first `##` section after the title
 - receipt v1 schema has not gained required fields
 - facts.json still says proprietary execution + open protocol
 - no page claims Foundation or a second production issuer
 - “Fiscal402 is not x402” still present on README, llms.txt and protocol
 - npm_published / pypi remain false unless already published
+- skills/fiscal402/SKILL.md name matches directory; description has trigger terms and refusals; body < 50 lines
+- skill verify command is source-only (`node packages/verify/dist/cli.js`); no live `npx`
+- AGENTS.md points at the skill and llms.txt
 
 When a capability becomes real, update this table and `scripts/check-public-contract.ts` (`PUBLIC_TRUTH`) in one change.
 
