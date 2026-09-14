@@ -4,6 +4,18 @@ Frozen production receipt. Do not “neutralize” v1 fields.
 
 JSON Schema: [`schemas/fiscal402.receipt-1.0.0.schema.json`](../schemas/fiscal402.receipt-1.0.0.schema.json)
 
+## Conformance
+
+This document is **frozen v1**. Fixtures in `test-vectors/valid/` are frozen v1. A class A verifier must verify them offline.
+
+Required JSON Schema fields MUST remain:
+
+`spec`, `spec_version`, `settlement`, `artifacts`, `hashes`, `signature`
+
+v1 receipts are verified by JWKS + `kid`. Legal entity is an out-of-band issuer registry ([https://www.fiscal402.com/legal](https://www.fiscal402.com/legal) + `facts.json legal.*`). Do not add KvK as a required v1 field.
+
+Compatibility: [docs/COMPATIBILITY.md](../docs/COMPATIBILITY.md).
+
 ## Identity
 
 | Field | Value |
