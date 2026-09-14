@@ -1,18 +1,27 @@
 # Fiscal402
 
-Open protocol specification and verification tooling for verifiable fiscal events in autonomous commerce.
+Fiscal infrastructure for autonomous commerce.
 
-Fiscal402 is post-settlement fiscal infrastructure for autonomous commerce. It turns machine payments into a portable, cryptographically verifiable fiscal-event receipt. x402 v2 exact is the first supported payment protocol; EU VAT is the first production jurisdiction. Fiscal402 does not settle payments and does not custody customer funds.
+Turn settled machine payments into verifiable fiscal events.
 
-> x402 moves the money. Fiscal402 makes the transaction fiscally usable.
+Fiscal402 is post-settlement fiscal infrastructure. It processes supported settled machine payments into durable fiscal events and verifiable fiscal artifacts. x402 v2 exact is the production payment protocol; EU VAT is the production jurisdiction engine. Fiscal402 does not settle payments and does not custody customer funds.
+
+> x402 handles payment authorization and settlement. It does not by itself determine VAT.
+
+> x402 moves the payment; Fiscal402 handles the post-settlement fiscal event.
 
 > The public Fiscal402 protocol defines how fiscal evidence is represented and verified. Fiscal determination infrastructure remains proprietary.
 
 ## Public surfaces
 
 - Website: [https://www.fiscal402.com](https://www.fiscal402.com)
+- x402 VAT: [https://www.fiscal402.com/x402/vat](https://www.fiscal402.com/x402/vat)
+- x402 fiscal receipts: [https://www.fiscal402.com/x402/fiscal-receipts](https://www.fiscal402.com/x402/fiscal-receipts)
 - Protocol: [https://www.fiscal402.com/protocol](https://www.fiscal402.com/protocol)
-- Verification: [https://www.fiscal402.com/verify](https://www.fiscal402.com/verify)
+- Receipt spec: [https://www.fiscal402.com/protocol/receipt](https://www.fiscal402.com/protocol/receipt)
+- Canonicalization: [https://www.fiscal402.com/protocol/canonicalization](https://www.fiscal402.com/protocol/canonicalization)
+- Verification: [https://www.fiscal402.com/docs/verification](https://www.fiscal402.com/docs/verification)
+- Facts: [https://www.fiscal402.com/facts](https://www.fiscal402.com/facts)
 - API: [https://api.fiscal402.com](https://api.fiscal402.com)
 - API docs: [https://api.fiscal402.com/docs](https://api.fiscal402.com/docs)
 - API reference: [https://api.fiscal402.com/reference](https://api.fiscal402.com/reference)
@@ -27,11 +36,12 @@ Fiscal402 is post-settlement fiscal infrastructure for autonomous commerce. It t
 ```
 x402 v2 exact
   → EU fiscal determination
-  → UBL / ledger
+  → UBL 2.1
   → fiscal402.receipt/1.0.0
+  → independent verification
 ```
 
-x402 is the first supported payment protocol.
+x402 is the first supported payment protocol. Global event support is not global tax determination. EU VAT is the only production-verified jurisdiction engine.
 
 ## Receipt versions
 
@@ -47,7 +57,7 @@ v1 is not deprecated. There is no migration requirement for v1 consumers.
 **Current**
 
 | Piece | Status |
-|---|---|
+|---|---|---|
 | x402 v2 exact | supported |
 | EU VAT | production implementation (proprietary execution) |
 | UBL 2.1 | supported (exact UTF-8 bytes, no XML C14N) |
@@ -57,22 +67,20 @@ v1 is not deprecated. There is no migration requirement for v1 consumers.
 **Experimental**
 
 | Piece | Status |
-|---|---|
+|---|---|---|
 | receipt 2.0.0 | specified + independently verifiable |
 | UK VAT determination | experimental; not a statutory invoice |
 | evm-transfer adapter | library-level; HTTP ingest is not public |
 
-**Not implemented**
+**Not implemented as production**
 
 | Piece | Status |
-|---|---|
-| MPP | not implemented |
-| AP2 | not implemented |
-| US sales tax | not implemented |
-| Canada | not implemented |
-| GBP FX | not implemented |
-| generic FX | not implemented |
-| Solana settlement verification | not implemented |
+|---|---|---|
+| MPP HTTP ingest | not production ingest; evidence profile exists on the website |
+| AP2 | authorization evidence only; a mandate is not settlement |
+| US sales tax | MANUAL_REVIEW provider boundary; no native rate table |
+| Canada GST/HST/QST/PST | experimental digital engines on the website; not production-verified |
+| npm-published verifier | source-only |
 
 ## Architecture (execution, not v1 wire format)
 
@@ -118,7 +126,7 @@ The ecosystem-facing primitive is **`fiscal402.receipt`**.
 
 ## Verify locally
 
-The verifier is not published to npm yet.
+The verifier is not published to npm yet. Do not `npm install @fiscal402/verify`.
 
 ```bash
 git clone https://github.com/Fiscal402/Fiscal402.git
@@ -139,6 +147,10 @@ node packages/verify/dist/cli.js \
   --jwks test-vectors/v2/valid/jwks.json \
   --artifact-id uk-vat-determination-1=test-vectors/v2/valid/uk-vat-determination.json
 ```
+
+## Suggested topics
+
+`x402` `machine-payments` `agentic-commerce` `vat` `eu-vat` `ubl` `en16931` `fiscal-receipts` `fiscal`
 
 ## License
 
