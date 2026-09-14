@@ -16,13 +16,14 @@ This repository is the protocol surface. The checker keeps it honest against the
 | Human | https://www.fiscal402.com |
 | Legal | https://www.fiscal402.com/legal |
 | Pricing | https://www.fiscal402.com/pricing |
+| Protocol | https://www.fiscal402.com/protocol |
 | Retrieval | https://www.fiscal402.com/facts.json |
 | LLM | https://www.fiscal402.com/llms.txt |
 | Agent discovery | https://api.fiscal402.com/.well-known/fiscal402.json |
 | API capabilities | https://api.fiscal402.com/v1/capabilities |
 | API contract | https://api.fiscal402.com/openapi.json |
 | Trust | https://api.fiscal402.com/.well-known/jwks.json |
-| Protocol | https://github.com/Fiscal402/Fiscal402 |
+| Protocol repo | https://github.com/Fiscal402/Fiscal402 |
 | Evidence | test-vectors/ + website examples |
 
 ## Commands
@@ -32,7 +33,7 @@ npm run check:public
 npm run check:public:live
 ```
 
-Local mode scans this repository for stale public pricing, temporary Fly hostnames, preview hosts, and false GitHub claims.
+Local mode scans this repository for stale public pricing, temporary Fly hostnames, preview hosts, false GitHub claims, protocol/company overclaims, and frozen v1 required fields.
 
 Live mode GET-fetches production URLs. Network failure is a failing check. CI runs local on push/PR and live on a daily schedule.
 
@@ -44,7 +45,7 @@ Live mode GET-fetches production URLs. Network failure is a failing check. CI ru
 | standard | `pricing_standard.fee_bps === 10` (0.1% of fiscalized volume) |
 | high volume | custom contracted |
 | MCP | implemented (JSON-RPC /mcp) |
-| receipt | fiscal402.receipt/1.0.0 |
+| receipt | fiscal402.receipt/1.0.0 frozen |
 | GitHub | https://github.com/Fiscal402/Fiscal402 |
 | legal.trade_name | Fiscal402 |
 | legal.statutory_name | present and not a placeholder (FAIL until KvK registration) |
@@ -52,6 +53,19 @@ Live mode GET-fetches production URLs. Network failure is a failing check. CI ru
 | UK / US / Canada | not production |
 | npm/PyPI verifier | not_implemented |
 | named ERP adapters | not_implemented |
+| listed production issuers | 1 |
+| verification requires company API | false |
+
+Checkable statements:
+
+- README contains the protocol/company/x402 split and compatibility A/B/C
+- README does not say the API is required to verify
+- Implement a verifier appears above Call the hosted API
+- receipt v1 schema has not gained required fields
+- facts.json still says proprietary execution + open protocol
+- no page claims Foundation or a second production issuer
+- “Fiscal402 is not x402” still present on README, llms.txt and protocol
+- npm_published / pypi remain false unless already published
 
 When a capability becomes real, update this table and `scripts/check-public-contract.ts` (`PUBLIC_TRUTH`) in one change.
 
@@ -69,6 +83,6 @@ Live equality checks:
 - “Fiscal402 is not x402”
 - no leftover `50 bps` / `0.5%`
 
-Denied in public output: `0.01 USDC`, `x402-lhrtxg.fly.dev`, `grok.me`, `github: false`, `50 bps`, `0.5%`.
+Denied in public output: `0.01 USDC`, `x402-lhrtxg.fly.dev`, `grok.me`, `github: false`, `50 bps`, `0.5%`, `Fiscal402 Foundation`, `EU-approved`.
 
 Fiscal402 is not x402. Fiscal402 is not a tax authority or filing product. Do not invent KvK/VAT numbers to make the checker pass.
